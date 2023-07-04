@@ -4,35 +4,36 @@
 #define KTARGUMENTPARSER_LIBRARY_H
 
 #include <string>
-#include <list>
+#include <vector>
+#include <unordered_set>
 
 class DOptionArgument {
 public:
     const bool isOptional;
     const bool takesParameter;
     bool wasSet = false;
-    std::list<char> commandsShort;
-    std::list<std::string> commandsLong;
+    std::unordered_set<char> commandsShort;
+    std::unordered_set<std::string> commandsLong;
     std::string description;
     std::string value;
 
-    DOptionArgument() = delete;
+    explicit DOptionArgument() = delete;
 
-    explicit DOptionArgument(bool _isOptional, bool _takesParameter, const std::list<char> &_commandsShort = std::list<char>(), const std::list<std::string> &_commandsLong = std::list<std::string>(), const std::string &_description = "");
+    explicit DOptionArgument(bool _isOptional, bool _takesParameter, const std::unordered_set<char> &_commandsShort = std::unordered_set<char>(), const std::unordered_set<std::string> &_commandsLong = std::unordered_set<std::string>(), std::string _description = "");
 
-    explicit DOptionArgument(bool _isOptional, bool _takesParameter, const std::list<char> &_commandsShort = std::list<char>(), const std::string &_description = "");
+    explicit DOptionArgument(bool _isOptional, bool _takesParameter, const std::unordered_set<char> &_commandsShort = std::unordered_set<char>(), std::string _description = "");
 
-    explicit DOptionArgument(bool _isOptional, bool _takesParameter, const std::list<std::string> &_commandsLong = std::list<std::string>(), const std::string &_description = "");
+    explicit DOptionArgument(bool _isOptional, bool _takesParameter, const std::unordered_set<std::string> &_commandsLong = std::unordered_set<std::string>(), std::string _description = "");
 
-    explicit DOptionArgument(bool _isOptional, bool _takesParameter, const std::string &_description = "");
+    explicit DOptionArgument(bool _isOptional, bool _takesParameter, std::string _description = "");
 
-    void AddShortCommand(char shortCommand);
+    bool AddShortCommand(char shortCommand);
 
-    void AddShortCommand(const std::list<char> &_commandsShort);
+    bool AddShortCommand(const std::unordered_set<char> &_commandsShort);
 
-    void AddLongCommand(const std::string &longCommand);
+    bool AddLongCommand(const std::string &longCommand);
 
-    void AddLongCommand(const std::list<std::string> &_commandsShort);
+    bool AddLongCommand(const std::unordered_set<std::string> &_commandsShort);
 
     void SetDescription(const std::string &_description);
 };
@@ -42,8 +43,8 @@ class DArgumentParser {
     std::string appName;
     std::string appVersion;
     std::string appDescription;
-    std::list<DOptionArgument> arguments;
-    std::list<std::string> positionalArgs;
+    std::unordered_set<DOptionArgument> arguments;
+    std::vector<std::string> positionalArgs;
     std::string error;
 
 public:
@@ -73,7 +74,7 @@ public:
       * @return true if the arguments were added, false if they were not. (at least one argument was invalid).
       * @def valid(1) - At least 1 command, either long or short, is set for each argument.
       */
-    bool AddArgument(const std::list<DOptionArgument> &args);
+    bool AddArgument(const std::unordered_set<DOptionArgument> &args);
 
     /**
      * <br>Mostly used to generate the help string.
@@ -87,7 +88,7 @@ public:
 
     bool WasSet(const DOptionArgument &argument);
 
-    [[nodiscard]] std::list<std::string> GetPositionalArguments() const;
+    [[nodiscard]] std::vector<std::string> GetPositionalArguments() const;
 
     [[nodiscard]] std::string VersionText();
 
