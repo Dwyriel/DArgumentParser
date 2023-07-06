@@ -19,13 +19,13 @@ public:
 
     explicit DArgumentOption() = delete;
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort = std::unordered_set<char>(), std::unordered_set<std::string> &&_commandsLong = std::unordered_set<std::string>(), std::string _description = "");
+    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort = std::unordered_set<char>(), std::unordered_set<std::string> &&_commandsLong = std::unordered_set<std::string>(), std::string _description = std::string());
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort = std::unordered_set<char>(), std::string _description = "");
+    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort = std::unordered_set<char>(), std::string _description = std::string());
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong = std::unordered_set<std::string>(), std::string _description = "");
+    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong = std::unordered_set<std::string>(), std::string _description = std::string());
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description = "");
+    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description = std::string());
 
     /**
      * Adds the passed character to the command list for this option, unless it was already included.
@@ -57,16 +57,17 @@ public:
 };
 
 class DArgumentParser {
-
+    int argumentCount;
+    char **argumentValues;
     std::string appName;
     std::string appVersion;
     std::string appDescription;
-    std::unordered_set<DArgumentOption> arguments;
+    std::unordered_set<DArgumentOption> arguments;//change to something else later
     std::vector<std::string> positionalArgs;
     std::string error;
 
 public:
-    DArgumentParser(int argc, char **argv, std::string appName, );
+    DArgumentParser(int argc, char **argv, std::string _appName = std::string(), std::string _appVersion = std::string(), std::string _appDescription = std::string());
 
     void SetAppName(const std::string &name);
 
