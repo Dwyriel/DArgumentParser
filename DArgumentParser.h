@@ -19,11 +19,11 @@ public:
 
     explicit DArgumentOption() = delete;
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, const std::unordered_set<char> &_commandsShort = std::unordered_set<char>(), const std::unordered_set<std::string> &_commandsLong = std::unordered_set<std::string>(), std::string _description = "");
+    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort = std::unordered_set<char>(), std::unordered_set<std::string> &&_commandsLong = std::unordered_set<std::string>(), std::string _description = "");
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, const std::unordered_set<char> &_commandsShort = std::unordered_set<char>(), std::string _description = "");
+    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort = std::unordered_set<char>(), std::string _description = "");
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, const std::unordered_set<std::string> &_commandsLong = std::unordered_set<std::string>(), std::string _description = "");
+    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong = std::unordered_set<std::string>(), std::string _description = "");
 
     explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description = "");
 
@@ -66,7 +66,7 @@ class DArgumentParser {
     std::string error;
 
 public:
-    DArgumentParser(int argc, char **argv);
+    DArgumentParser(int argc, char **argv, std::string appName, );
 
     void SetAppName(const std::string &name);
 

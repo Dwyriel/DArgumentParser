@@ -3,11 +3,11 @@
 #include <utility>
 
 /* ------ DArgumentOption ------ */
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, const std::unordered_set<char> &_commandsShort, const std::unordered_set<std::string> &_commandsLong, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), commandsLong(_commandsLong), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::unordered_set<std::string> &&_commandsLong, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), commandsLong(_commandsLong), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, const std::unordered_set<char> &_commandsShort, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, const std::unordered_set<std::string> &_commandsLong, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsLong(_commandsLong), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsLong(_commandsLong), description(std::move(_description)) {}
 
 DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), description(std::move(_description)) {}
 
