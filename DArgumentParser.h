@@ -63,6 +63,13 @@ public:
     bool AddLongCommand(std::unordered_set<std::string> &&_commandsLong);
 };
 
+template<>
+struct std::hash<DArgumentOption> {
+    std::size_t operator()(DArgumentOption const &dArgumentOption) const noexcept {
+        return std::hash<std::string>{}(dArgumentOption.id);
+    }
+};
+
 class DArgumentParser {
     int argumentCount;
     char **argumentValues;
