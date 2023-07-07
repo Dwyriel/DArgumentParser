@@ -85,15 +85,9 @@ public:
 
     void SetAppName(const std::string &name);
 
-    void SetAppVersion(const std::string &name);
+    void SetAppVersion(const std::string &version);
 
-    void SetAppDescription(const std::string &name);
-
-    /**
-     * <br>Parses the argv passed on creation based on the positional arguments and option arguments added.
-     * @return true if parse was successful, false if an error occurred (non-optional parameter not passed). Call "ErrorText" function to retrieve a printable string of the error.
-     */
-    bool Parse();
+    void SetAppDescription(const std::string &description);
 
     /**
       * <br>if the argument is valid(1) then it will be added to the argument list.
@@ -116,6 +110,12 @@ public:
      * @param syntax How the command should be used, useful for more complex applications. (Optional, will be omitted if not set).
      */
     void AddPositionalArgument(const std::string &name, const std::string &description, const std::string &syntax = std::string());
+
+    /**
+     * <br>Parses the argv passed on creation based on the positional arguments and option arguments added.
+     * @return true if parse was successful, false if an error occurred (non-optional parameter not passed). Call "ErrorText" function to retrieve a printable string of the error.
+     */
+    bool Parse();
 
     bool WasSet(const std::string &command);
 

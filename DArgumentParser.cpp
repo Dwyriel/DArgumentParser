@@ -63,3 +63,15 @@ bool DArgumentOption::AddLongCommand(std::unordered_set<std::string> &&_commands
 }
 
 DArgumentParser::DArgumentParser(int argc, char **argv, std::string _appName, std::string _appVersion, std::string _appDescription) : argumentCount(argc), argumentValues(argv), appName(std::move(_appName)), appVersion(std::move(_appVersion)), appDescription(std::move(_appDescription)) {}
+
+void DArgumentParser::SetAppName(const std::string &name) {
+    appName = name;
+}
+
+void DArgumentParser::SetAppVersion(const std::string &version) {
+    appVersion = version;
+}
+
+void DArgumentParser::SetAppDescription(const std::string &description) {
+    appDescription = description;
+}
