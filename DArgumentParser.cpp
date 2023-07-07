@@ -14,9 +14,9 @@ std::string DArgumentOption::generateID() {
     for (int i = 0; i < 32; i++) {
         id[i] = hex[uniformIntDistribution(rng)];
     }
-    if (DArgumentOption::ids.find(id) != ids.end())
+    if (DArgumentOption::ids.find(id) != DArgumentOption::ids.end())
         id = generateID();
-    ids.insert(id);
+    DArgumentOption::ids.insert(id);
     return id;
 }
 
@@ -31,7 +31,7 @@ DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::st
 DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter) {}
 
 DArgumentOption::~DArgumentOption() {
-    ids.erase(id);
+    DArgumentOption::ids.erase(id);
 }
 
 bool DArgumentOption::AddShortCommand(char shortCommand) {

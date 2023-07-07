@@ -90,10 +90,10 @@ public:
     void SetAppDescription(const std::string &description);
 
     /**
-      * <br>if the argument is valid(1) then it will be added to the argument list.
-      * @return true if argument was added, false if it wasn't (invalid argument).
-      * @def valid(1) - At least 1 command, either long or short, is set.
-      */
+     * <br>if the argument is valid(1) then it will be added to the argument list.
+     * @return true if argument was added, false if it wasn't (invalid argument).
+     * @def valid(1) - At least 1 command, either long or short, is set.
+     */
     bool AddArgument(const DArgumentOption &arg);
 
     /**
