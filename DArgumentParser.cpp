@@ -1,15 +1,38 @@
 #include "DArgumentParser.h"
 
-#include <utility>
+#include <random>
 
 /* ------ DArgumentOption ------ */
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::unordered_set<std::string> &&_commandsLong, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), commandsLong(_commandsLong), description(std::move(_description)) {}
+std::unordered_set<std::string> DArgumentOption::ids;
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), description(std::move(_description)) {}
+std::string DArgumentOption::generateID() {
+    const char hex[] = "0123456789ABCDEF";
+    std::random_device device;
+    std::mt19937 rng(device());
+    std::uniform_int_distribution<char> uniformIntDistribution(0, 15);
+    std::string id(32, '0');
+    for (int i = 0; i < 32; i++) {
+        id[i] = hex[uniformIntDistribution(rng)];
+    }
+    if (DArgumentOption::ids.find(id) != ids.end())
+        id = generateID();
+    ids.insert(id);
+    return id;
+}
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), commandsLong(_commandsLong), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::unordered_set<std::string> &&_commandsLong, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), commandsLong(_commandsLong), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description) : isOptional(_isOptional), takesParameter(_takesParameter), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), description(std::move(_description)) {}
+
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), commandsLong(_commandsLong), description(std::move(_description)) {}
+
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), description(std::move(_description)) {}
+
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter) {}
+
+DArgumentOption::~DArgumentOption() {
+    ids.erase(id);
+}
 
 bool DArgumentOption::AddShortCommand(char shortCommand) {
     if (shortCommand < 33 || shortCommand == '-' || shortCommand == 127)

@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #ifndef KTARGUMENTPARSER_LIBRARY_H
 #define KTARGUMENTPARSER_LIBRARY_H
 
@@ -8,7 +6,12 @@
 #include <unordered_set>
 
 class DArgumentOption {
+    static std::unordered_set<std::string> ids;
+
+    static std::string generateID();
+
 public:
+    const std::string id;
     const bool isOptional;
     const bool takesParameter;
     bool wasSet = false;
@@ -17,15 +20,19 @@ public:
     std::string description;
     std::string value;
 
-    explicit DArgumentOption() = delete;
+    DArgumentOption() = delete;
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort = std::unordered_set<char>(), std::unordered_set<std::string> &&_commandsLong = std::unordered_set<std::string>(), std::string _description = std::string());
+    DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::unordered_set<std::string> &&_commandsLong, std::string _description = std::string());
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort = std::unordered_set<char>(), std::string _description = std::string());
+    DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::string _description = std::string());
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong = std::unordered_set<std::string>(), std::string _description = std::string());
+    DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong, std::string _description = std::string());
 
-    explicit DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description = std::string());
+    DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description);
+
+    DArgumentOption(bool _isOptional, bool _takesParameter);
+
+    ~DArgumentOption();
 
     /**
      * Adds the passed character to the command list for this option, unless it was already included.
