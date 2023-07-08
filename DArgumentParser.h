@@ -96,7 +96,7 @@ class DArgumentParser {
     std::string appName;
     std::string appVersion;
     std::string appDescription;
-    std::unordered_set<DArgumentOption> arguments;//change to something else later
+    std::unordered_set<DArgumentOption *> arguments;
     std::vector<std::string> positionalArgs;
     std::string error;
 
@@ -114,14 +114,25 @@ public:
      * @return true if argument was added, false if it wasn't (invalid argument).
      * @def valid(1) - At least 1 command, either long or short, is set.
      */
-    bool AddArgument(const DArgumentOption &arg);
+    bool AddArgument(DArgumentOption *arg);
 
     /**
      * <br>if all arguments are valid(1) then they will be added to the argument list.
      * @return true if the arguments were added, false if they were not. (at least one argument was invalid).
      * @def valid(1) - At least 1 command, either long or short, is set for each argument.
      */
-    bool AddArgument(const std::unordered_set<DArgumentOption> &args);
+    bool AddArgument(std::unordered_set<DArgumentOption *> &&args);
+
+    /**
+     * Removes the passed argument from the argument list.
+     * @return true if it was removed, false if it wasn't (in case there was no such argument in the list).
+     */
+    bool RemoveArgument(DArgumentOption *arg);
+
+    /**
+     * Removes all arguments previously added, clearing the list.
+     */
+    void ClearArguments();
 
     /**
      * <br>Mostly used to generate the help string.
@@ -139,7 +150,7 @@ public:
 
     bool WasSet(const std::string &command);
 
-    bool WasSet(const DArgumentOption &argument);
+    bool WasSet(DArgumentOption *argument);
 
     [[nodiscard]] std::vector<std::string> GetPositionalArguments() const;
 
