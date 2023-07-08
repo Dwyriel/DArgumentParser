@@ -1,6 +1,24 @@
 #include "DArgumentParser.h"
 
 #include <random>
+#include <iostream>
+
+/* ------ DUnique ------ */
+
+DUnique::DUnique() : objCounter(new int(1)) {}
+
+DUnique::DUnique(const DUnique &dUnique) {
+    objCounter = dUnique.objCounter;
+    (*objCounter)++;
+}
+
+DUnique::DUnique(DUnique &&dUnique) noexcept {
+    objCounter = dUnique.objCounter;
+}
+
+void DUnique::deleteObjectCounter() const {
+    delete objCounter;
+}
 
 /* ------ DArgumentOption ------ */
 std::unordered_set<std::string> DArgumentOption::ids;
@@ -31,7 +49,10 @@ DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::st
 DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter) {}
 
 DArgumentOption::~DArgumentOption() {
+    if (--(*objCounter) > 0)
+        return;
     DArgumentOption::ids.erase(id);
+    deleteObjectCounter();
 }
 
 bool DArgumentOption::AddShortCommand(char shortCommand) {
@@ -60,6 +81,14 @@ bool DArgumentOption::AddLongCommand(std::unordered_set<std::string> &&_commands
             return false;
     commandsLong.merge(_commandsLong);
     return true;
+}
+
+bool DArgumentOption::WasSet() const {
+    return wasSet;
+}
+
+std::string DArgumentOption::GetValue() const {
+    return value;
 }
 
 DArgumentParser::DArgumentParser(int argc, char **argv, std::string _appName, std::string _appVersion, std::string _appDescription) : argumentCount(argc), argumentValues(argv), appName(std::move(_appName)), appVersion(std::move(_appVersion)), appDescription(std::move(_appDescription)) {}

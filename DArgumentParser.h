@@ -5,20 +5,36 @@
 #include <vector>
 #include <unordered_set>
 
-class DArgumentOption {
+class DUnique {
+protected:
+    int *objCounter;
+
+    void deleteObjectCounter() const;
+
+public:
+    DUnique();
+
+    DUnique(const DUnique &dUnique);
+
+    DUnique(DUnique &&dUnique) noexcept;
+};
+
+class DArgumentOption : public DUnique {
     static std::unordered_set<std::string> ids;
 
     static std::string generateID();
+
+    bool wasSet = false;
+
+    std::string value;
 
 public:
     const std::string id;
     const bool isOptional;
     const bool takesParameter;
-    bool wasSet = false;
     std::unordered_set<char> commandsShort;
     std::unordered_set<std::string> commandsLong;
     std::string description;
-    std::string value;
 
     DArgumentOption() = delete;
 
@@ -61,6 +77,10 @@ public:
      * @def invalid(1) - if string starting with a minus(-) sign.
      */
     bool AddLongCommand(std::unordered_set<std::string> &&_commandsLong);
+
+    bool WasSet() const;
+
+    std::string GetValue() const;
 };
 
 template<>
