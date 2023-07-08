@@ -24,14 +24,14 @@ void DUnique::deleteObjectCounter() const {
 std::unordered_set<std::string> DArgumentOption::ids;
 
 std::string DArgumentOption::generateID() {
-    const char hex[] = "0123456789ABCDEF";
+    const int strSize = 32;
+    const char digits[] = "0123456789ABCDEF";
     std::random_device device;
     std::mt19937 rng(device());
-    std::uniform_int_distribution<char> uniformIntDistribution(0, 15);
-    std::string id(32, '0');
-    for (int i = 0; i < 32; i++) {
-        id[i] = hex[uniformIntDistribution(rng)];
-    }
+    std::uniform_int_distribution<char> uniformIntDistribution(0, sizeof(digits) - 2);
+    std::string id(strSize, '0');
+    for (int i = 0; i < strSize; i++)
+        id[i] = digits[uniformIntDistribution(rng)];
     if (DArgumentOption::ids.find(id) != DArgumentOption::ids.end())
         id = generateID();
     DArgumentOption::ids.insert(id);
