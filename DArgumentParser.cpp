@@ -40,13 +40,7 @@ std::string DArgumentOption::generateID() {
 
 DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::unordered_set<std::string> &&_commandsLong, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), commandsLong(_commandsLong), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), description(std::move(_description)) {}
-
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), commandsLong(_commandsLong), description(std::move(_description)) {}
-
 DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), description(std::move(_description)) {}
-
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter) {}
 
 DArgumentOption::~DArgumentOption() {
     if (--(*objCounter) > 0)
@@ -93,6 +87,45 @@ std::string DArgumentOption::GetValue() const {
 
 DArgumentParser::DArgumentParser(int argc, char **argv, std::string _appName, std::string _appVersion, std::string _appDescription) : argumentCount(argc), argumentValues(argv), appName(std::move(_appName)), appVersion(std::move(_appVersion)), appDescription(std::move(_appDescription)) {}
 
+bool DArgumentParser::checkIfArgumentIsUnique(DArgumentOption *dArgumentOption) {
+    if (arguments.find(dArgumentOption) != arguments.end())
+        return false;
+    if (dArgumentOption->commandsShort.empty() && dArgumentOption->commandsLong.empty())
+        return false;
+    for (auto argument: arguments) {
+        for (auto shortCommand: dArgumentOption->commandsShort)
+            if (argument->commandsShort.find(shortCommand) != argument->commandsShort.end())
+                return false;
+        for (auto &longCommand: dArgumentOption->commandsLong)
+            if (argument->commandsLong.find(longCommand) != argument->commandsLong.end())
+                return false;
+    }
+    return true;
+}
+
+bool DArgumentParser::checkIfAllArgumentsInListAreUnique(const std::unordered_set<DArgumentOption *> &_arguments) {
+    int index = 1;
+    for (auto upperIterator = _arguments.begin(); upperIterator != _arguments.end(); upperIterator++) {
+        if (!checkIfArgumentIsUnique(*upperIterator))
+            return false;
+        auto lowerIterator = _arguments.begin();
+        for (int i = 0; i < index; i++)
+            lowerIterator++;
+        if (lowerIterator == _arguments.end())
+            continue;
+        for (; lowerIterator != _arguments.end(); lowerIterator++) {
+            for (auto shortCommand: (*upperIterator)->commandsShort)
+                if ((*lowerIterator)->commandsShort.find(shortCommand) != (*lowerIterator)->commandsShort.end())
+                    return false;
+            for (auto &longCommand: (*upperIterator)->commandsLong)
+                if ((*lowerIterator)->commandsLong.find(longCommand) != (*lowerIterator)->commandsLong.end())
+                    return false;
+        }
+        index++;
+    }
+    return true;
+}
+
 void DArgumentParser::SetAppName(const std::string &name) {
     appName = name;
 }
@@ -103,4 +136,17 @@ void DArgumentParser::SetAppVersion(const std::string &version) {
 
 void DArgumentParser::SetAppDescription(const std::string &description) {
     appDescription = description;
+}
+
+bool DArgumentParser::AddArgument(DArgumentOption *dArgumentOption) {
+    if (!checkIfArgumentIsUnique(dArgumentOption))
+        return false;
+    return arguments.insert(dArgumentOption).second;
+}
+
+bool DArgumentParser::AddArgument(std::unordered_set<DArgumentOption *> &&args) {
+    if (!checkIfAllArgumentsInListAreUnique(args))
+        return false;
+    arguments.merge(args);
+    return true;
 }

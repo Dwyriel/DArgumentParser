@@ -40,13 +40,7 @@ public:
 
     DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::unordered_set<std::string> &&_commandsLong, std::string _description = std::string());
 
-    DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::string _description = std::string());
-
-    DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<std::string> &&_commandsLong, std::string _description = std::string());
-
-    DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description);
-
-    DArgumentOption(bool _isOptional, bool _takesParameter);
+    DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description = std::string());
 
     ~DArgumentOption();
 
@@ -100,6 +94,10 @@ class DArgumentParser {
     std::vector<std::string> positionalArgs;
     std::string error;
 
+    bool checkIfArgumentIsUnique(DArgumentOption *dArgumentOption);
+
+    bool checkIfAllArgumentsInListAreUnique(const std::unordered_set<DArgumentOption *> &_arguments);
+
 public:
     DArgumentParser(int argc, char **argv, std::string _appName = std::string(), std::string _appVersion = std::string(), std::string _appDescription = std::string());
 
@@ -112,14 +110,14 @@ public:
     /**
      * <br>if the argument is valid(1) then it will be added to the argument list.
      * @return true if argument was added, false if it wasn't (invalid argument).
-     * @def valid(1) - At least 1 command, either long or short, is set.
+     * @def valid(1) - At least 1 command, either long or short, is set and all of its commands are unique (when compared to other DArgumentOptions added before).
      */
-    bool AddArgument(DArgumentOption *arg);
+    bool AddArgument(DArgumentOption *dArgumentOption);
 
     /**
      * <br>if all arguments are valid(1) then they will be added to the argument list.
      * @return true if the arguments were added, false if they were not. (at least one argument was invalid).
-     * @def valid(1) - At least 1 command, either long or short, is set for each argument.
+     * @def valid(1) - At least 1 command, either long or short, is set for each argument and all commands are unique (when compared to other DArgumentOptions added before and to each other).
      */
     bool AddArgument(std::unordered_set<DArgumentOption *> &&args);
 
