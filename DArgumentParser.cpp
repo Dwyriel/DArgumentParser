@@ -144,9 +144,17 @@ bool DArgumentParser::AddArgument(DArgumentOption *dArgumentOption) {
     return arguments.insert(dArgumentOption).second;
 }
 
+bool DArgumentParser::AddArgument(DArgumentOption &dArgumentOption) {
+    return AddArgument(&dArgumentOption);
+}
+
 bool DArgumentParser::AddArgument(std::unordered_set<DArgumentOption *> &&args) {
     if (!checkIfAllArgumentsInListAreUnique(args))
         return false;
     arguments.merge(args);
     return true;
+}
+
+bool DArgumentParser::RemoveArgument(DArgumentOption *argument) {
+    return arguments.erase(argument);
 }
