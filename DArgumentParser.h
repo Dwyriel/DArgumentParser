@@ -20,25 +20,26 @@ public:
 };
 
 class DArgumentOption : public DUnique {
+    friend class DArgumentParser;
+
     static std::unordered_set<std::string> ids;
 
     static std::string generateID();
 
     bool wasSet = false;
-
     std::string value;
+    std::unordered_set<char> shortCommands;
+    std::unordered_set<std::string> longCommands;
+    std::string description;
 
 public:
     const std::string id;
     const bool isOptional;
     const bool takesParameter;
-    std::unordered_set<char> commandsShort;
-    std::unordered_set<std::string> commandsLong;
-    std::string description;
 
     DArgumentOption() = delete;
 
-    DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::unordered_set<std::string> &&_commandsLong, std::string _description = std::string());
+    DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_shortCommands, std::unordered_set<std::string> &&_longCommands, std::string _description = std::string());
 
     DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description = std::string());
 
@@ -56,7 +57,11 @@ public:
      * @return false if any of the commands were invalid(1), otherwise true.
      * @def invalid(1) - any character without a ascii representation, spaces or the character minus(-).
      */
-    bool AddShortCommand(std::unordered_set<char> &&_commandsShort);
+    bool AddShortCommand(std::unordered_set<char> &&_shortCommands);
+
+    const std::unordered_set<char> &ShortCommands() const;
+
+    void ClearShortCommands();
 
     /**
      * Adds the passed string to the command list for this option, unless it was already included.
@@ -70,11 +75,17 @@ public:
      * @return false if any of the commands were invalid(1), otherwise true.
      * @def invalid(1) - if string starting with a minus(-) sign.
      */
-    bool AddLongCommand(std::unordered_set<std::string> &&_commandsLong);
+    bool AddLongCommand(std::unordered_set<std::string> &&_longCommands);
+
+    const std::unordered_set<std::string> &LongCommands() const;
+
+    void ClearLongCommands();
+
+    void AddDescription(const std::string &_description);
 
     bool WasSet() const;
 
-    std::string GetValue() const;
+    const std::string &GetValue() const;
 };
 
 template<>

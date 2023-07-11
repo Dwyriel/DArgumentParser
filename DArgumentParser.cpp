@@ -4,7 +4,6 @@
 #include <iostream>
 
 /* ------ DUnique ------ */
-
 DUnique::DUnique() : objCounter(new int(1)) {}
 
 DUnique::DUnique(const DUnique &dUnique) {
@@ -38,7 +37,7 @@ std::string DArgumentOption::generateID() {
     return id;
 }
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_commandsShort, std::unordered_set<std::string> &&_commandsLong, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), commandsShort(_commandsShort), commandsLong(_commandsLong), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_shortCommands, std::unordered_set<std::string> &&_longCommands, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
 DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), description(std::move(_description)) {}
 
@@ -52,36 +51,56 @@ DArgumentOption::~DArgumentOption() {
 bool DArgumentOption::AddShortCommand(char shortCommand) {
     if (shortCommand < 33 || shortCommand == '-' || shortCommand == 127)
         return false;
-    return commandsShort.insert(shortCommand).second;
+    return shortCommands.insert(shortCommand).second;
 }
 
-bool DArgumentOption::AddShortCommand(std::unordered_set<char> &&_commandsShort) {
-    for (auto shortCommand: _commandsShort)
+bool DArgumentOption::AddShortCommand(std::unordered_set<char> &&_shortCommands) {
+    for (auto shortCommand: _shortCommands)
         if (shortCommand < 33 || shortCommand == '-' || shortCommand == 127)
             return false;
-    commandsShort.merge(_commandsShort);
+    shortCommands.merge(_shortCommands);
     return true;
+}
+
+const std::unordered_set<char> &DArgumentOption::ShortCommands() const {
+    return shortCommands;
+}
+
+void DArgumentOption::ClearShortCommands() {
+    shortCommands.clear();
 }
 
 bool DArgumentOption::AddLongCommand(const std::string &longCommand) {
     if (longCommand.front() == '-')
         return false;
-    return commandsLong.insert(longCommand).second;
+    return longCommands.insert(longCommand).second;
 }
 
-bool DArgumentOption::AddLongCommand(std::unordered_set<std::string> &&_commandsLong) {
-    for (auto longCommand: _commandsLong)
+bool DArgumentOption::AddLongCommand(std::unordered_set<std::string> &&_longCommands) {
+    for (auto longCommand: _longCommands)
         if (longCommand.front() == '-')
             return false;
-    commandsLong.merge(_commandsLong);
+    longCommands.merge(_longCommands);
     return true;
+}
+
+const std::unordered_set<std::string> &DArgumentOption::LongCommands() const {
+    return longCommands;
+}
+
+void DArgumentOption::ClearLongCommands() {
+    longCommands.clear();
+}
+
+void DArgumentOption::AddDescription(const std::string &_description) {
+    description = _description;
 }
 
 bool DArgumentOption::WasSet() const {
     return wasSet;
 }
 
-std::string DArgumentOption::GetValue() const {
+const std::string &DArgumentOption::GetValue() const {
     return value;
 }
 
@@ -90,14 +109,14 @@ DArgumentParser::DArgumentParser(int argc, char **argv, std::string _appName, st
 bool DArgumentParser::checkIfArgumentIsUnique(DArgumentOption *dArgumentOption) {
     if (arguments.find(dArgumentOption) != arguments.end())
         return false;
-    if (dArgumentOption->commandsShort.empty() && dArgumentOption->commandsLong.empty())
+    if (dArgumentOption->shortCommands.empty() && dArgumentOption->longCommands.empty())
         return false;
     for (auto argument: arguments) {
-        for (auto shortCommand: dArgumentOption->commandsShort)
-            if (argument->commandsShort.find(shortCommand) != argument->commandsShort.end())
+        for (auto shortCommand: dArgumentOption->shortCommands)
+            if (argument->shortCommands.find(shortCommand) != argument->shortCommands.end())
                 return false;
-        for (auto &longCommand: dArgumentOption->commandsLong)
-            if (argument->commandsLong.find(longCommand) != argument->commandsLong.end())
+        for (auto &longCommand: dArgumentOption->longCommands)
+            if (argument->longCommands.find(longCommand) != argument->longCommands.end())
                 return false;
     }
     return true;
@@ -114,11 +133,11 @@ bool DArgumentParser::checkIfAllArgumentsInListAreUnique(const std::unordered_se
         if (lowerIterator == _arguments.end())
             continue;
         for (; lowerIterator != _arguments.end(); lowerIterator++) {
-            for (auto shortCommand: (*upperIterator)->commandsShort)
-                if ((*lowerIterator)->commandsShort.find(shortCommand) != (*lowerIterator)->commandsShort.end())
+            for (auto shortCommand: (*upperIterator)->shortCommands)
+                if ((*lowerIterator)->shortCommands.find(shortCommand) != (*lowerIterator)->shortCommands.end())
                     return false;
-            for (auto &longCommand: (*upperIterator)->commandsLong)
-                if ((*lowerIterator)->commandsLong.find(longCommand) != (*lowerIterator)->commandsLong.end())
+            for (auto &longCommand: (*upperIterator)->longCommands)
+                if ((*lowerIterator)->longCommands.find(longCommand) != (*lowerIterator)->longCommands.end())
                     return false;
         }
         index++;
