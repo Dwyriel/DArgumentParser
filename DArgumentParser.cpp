@@ -177,3 +177,11 @@ bool DArgumentParser::AddArgument(std::unordered_set<DArgumentOption *> &&args) 
 bool DArgumentParser::RemoveArgument(DArgumentOption *argument) {
     return arguments.erase(argument);
 }
+
+bool DArgumentParser::RemoveArgument(DArgumentOption &argument) {
+    return arguments.erase(&argument);
+}
+
+void DArgumentParser::ClearArguments() {
+    arguments.clear();
+}

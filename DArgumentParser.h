@@ -148,6 +148,12 @@ public:
     bool RemoveArgument(DArgumentOption *argument);
 
     /**
+     * Removes the passed argument from the argument list.
+     * @return true if it was removed, false if it wasn't (in case there was no such argument in the list).
+     */
+    bool RemoveArgument(DArgumentOption &argument);
+
+    /**
      * Removes all arguments previously added, clearing the list.
      */
     void ClearArguments();
