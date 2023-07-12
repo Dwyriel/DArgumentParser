@@ -185,3 +185,7 @@ bool DArgumentParser::RemoveArgument(DArgumentOption &argument) {
 void DArgumentParser::ClearArguments() {
     arguments.clear();
 }
+
+void DArgumentParser::AddPositionalArgument(std::string name, std::string description, std::string syntax) {
+    positionalArgs.emplace_back(std::move(name), std::move(description), std::move(syntax));
+}

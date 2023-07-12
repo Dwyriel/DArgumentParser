@@ -102,7 +102,8 @@ class DArgumentParser {
     std::string appVersion;
     std::string appDescription;
     std::unordered_set<DArgumentOption *> arguments;
-    std::vector<std::string> positionalArgs;
+    std::vector<std::tuple<std::string, std::string, std::string>> positionalArgs;
+    std::vector<std::string> positionalArgsValues;
     std::string error;
 
     bool checkIfArgumentIsUnique(DArgumentOption *dArgumentOption);
@@ -159,12 +160,12 @@ public:
     void ClearArguments();
 
     /**
-     * <br>Mostly used to generate the help string.
+     * <br>Used to generate the help string.
      * @param name Name of the command.
      * @param description The description to be shown.
-     * @param syntax How the command should be used, useful for more complex applications. (Optional, will be omitted if not set).
+     * @param syntax How the command should be used, useful for more complex applications. (Optional, will default to the passed name if not set).
      */
-    void AddPositionalArgument(const std::string &name, const std::string &description, const std::string &syntax = std::string());
+    void AddPositionalArgument(std::string name, std::string description, std::string syntax = std::string());
 
     /**
      * <br>Parses the argv passed on creation based on the positional arguments and option arguments added.
