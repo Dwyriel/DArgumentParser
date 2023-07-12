@@ -113,6 +113,8 @@ class DArgumentParser {
 public:
     DArgumentParser(int argc, char **argv, std::string _appName = std::string(), std::string _appVersion = std::string(), std::string _appDescription = std::string());
 
+    void SetAppInfo(const std::string &name, const std::string &version, const std::string &description = std::string());
+
     void SetAppName(const std::string &name);
 
     void SetAppVersion(const std::string &version);
@@ -167,8 +169,18 @@ public:
      */
     void AddPositionalArgument(std::string name, std::string description, std::string syntax = std::string());
 
+    /**
+     *
+     * @param command the command character to check.
+     * @return Returns a boolean indicating if the option was set or not, always returns false if no option with specified command was found.
+     */
     bool WasSet(char command);
 
+    /**
+     *
+     * @param command the command string to check.
+     * @return Returns a boolean indicating if the option was set or not, always returns false if no option with specified command was found.
+     */
     bool WasSet(const std::string &command);
 
     [[nodiscard]] std::vector<std::string> GetPositionalArguments() const;

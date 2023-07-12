@@ -145,6 +145,12 @@ bool DArgumentParser::checkIfAllArgumentsInListAreUnique(const std::unordered_se
     return true;
 }
 
+void DArgumentParser::SetAppInfo(const std::string &name, const std::string &version, const std::string &description) {
+    appName = name;
+    appVersion = version;
+    appDescription = description;
+}
+
 void DArgumentParser::SetAppName(const std::string &name) {
     appName = name;
 }
@@ -191,14 +197,14 @@ void DArgumentParser::AddPositionalArgument(std::string name, std::string descri
 }
 
 bool DArgumentParser::WasSet(char command) {
-    for (auto argument : arguments)
+    for (auto argument: arguments)
         if (argument->shortCommands.find(command) != argument->shortCommands.end())
             return argument->wasSet;
     return false;
 }
 
 bool DArgumentParser::WasSet(const std::string &command) {
-    for (auto argument : arguments)
+    for (auto argument: arguments)
         if (argument->longCommands.find(command) != argument->longCommands.end())
             return argument->wasSet;
     return false;
@@ -206,4 +212,13 @@ bool DArgumentParser::WasSet(const std::string &command) {
 
 std::vector<std::string> DArgumentParser::GetPositionalArguments() const {
     return positionalArgsValues;
+}
+
+std::string DArgumentParser::VersionText() {
+    std::string versionText;
+    versionText.reserve(appName.size() + appVersion.size() + 1);
+    versionText.append(appName);
+    versionText += ' ';
+    versionText.append(appVersion);
+    return versionText;
 }
