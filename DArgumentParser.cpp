@@ -189,3 +189,21 @@ void DArgumentParser::ClearArguments() {
 void DArgumentParser::AddPositionalArgument(std::string name, std::string description, std::string syntax) {
     positionalArgs.emplace_back(std::move(name), std::move(description), std::move(syntax));
 }
+
+bool DArgumentParser::WasSet(char command) {
+    for (auto argument : arguments)
+        if (argument->shortCommands.find(command) != argument->shortCommands.end())
+            return argument->wasSet;
+    return false;
+}
+
+bool DArgumentParser::WasSet(const std::string &command) {
+    for (auto argument : arguments)
+        if (argument->longCommands.find(command) != argument->longCommands.end())
+            return argument->wasSet;
+    return false;
+}
+
+std::vector<std::string> DArgumentParser::GetPositionalArguments() const {
+    return positionalArgsValues;
+}

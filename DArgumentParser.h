@@ -167,15 +167,9 @@ public:
      */
     void AddPositionalArgument(std::string name, std::string description, std::string syntax = std::string());
 
-    /**
-     * <br>Parses the argv passed on creation based on the positional arguments and option arguments added.
-     * @return true if parse was successful, false if an error occurred (non-optional parameter not passed). Call "ErrorText" function to retrieve a printable string of the error.
-     */
-    bool Parse();
+    bool WasSet(char command);
 
     bool WasSet(const std::string &command);
-
-    bool WasSet(DArgumentOption *argument);
 
     [[nodiscard]] std::vector<std::string> GetPositionalArguments() const;
 
@@ -184,6 +178,12 @@ public:
     [[nodiscard]] std::string HelpText();
 
     [[nodiscard]] std::string ErrorText();
+
+    /**
+     * <br>Parses the argv passed on creation based on the positional arguments and option arguments added.
+     * @return true if parse was successful, false if an error occurred (non-optional parameter not passed). Call "ErrorText" function to retrieve a printable string of the error.
+     */
+    bool Parse();
 };
 
 #endif //KTARGUMENTPARSER_LIBRARY_H
