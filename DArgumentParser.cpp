@@ -112,35 +112,35 @@ bool DArgumentParser::checkIfArgumentIsUnique(DArgumentOption *dArgumentOption) 
     if (dArgumentOption->shortCommands.empty() && dArgumentOption->longCommands.empty())
         return false;
     for (auto argument: arguments) {
+        auto shortEnd = argument->shortCommands.end();
         for (auto shortCommand: dArgumentOption->shortCommands)
-            if (argument->shortCommands.find(shortCommand) != argument->shortCommands.end())
+            if (argument->shortCommands.find(shortCommand) != shortEnd)
                 return false;
+        auto longEnd = argument->longCommands.end();
         for (auto &longCommand: dArgumentOption->longCommands)
-            if (argument->longCommands.find(longCommand) != argument->longCommands.end())
+            if (argument->longCommands.find(longCommand) != longEnd)
                 return false;
     }
     return true;
 }
 
 bool DArgumentParser::checkIfAllArgumentsInListAreUnique(const std::unordered_set<DArgumentOption *> &_arguments) {
-    int index = 1;
-    for (auto upperIterator = _arguments.begin(); upperIterator != _arguments.end(); upperIterator++) {
+    for (auto upperIterator = _arguments.begin(), upperEnd = _arguments.end(); upperIterator != upperEnd; upperIterator++) {
         if (!checkIfArgumentIsUnique(*upperIterator))
             return false;
-        auto lowerIterator = _arguments.begin();
-        for (int i = 0; i < index; i++)
-            lowerIterator++;
-        if (lowerIterator == _arguments.end())
-            continue;
-        for (; lowerIterator != _arguments.end(); lowerIterator++) {
+        auto lowerIterator = upperIterator;
+        if (++lowerIterator == upperEnd)
+            break;
+        for (; lowerIterator != upperEnd; lowerIterator++) {
+            auto shortEnd = (*lowerIterator)->shortCommands.end();
             for (auto shortCommand: (*upperIterator)->shortCommands)
-                if ((*lowerIterator)->shortCommands.find(shortCommand) != (*lowerIterator)->shortCommands.end())
+                if ((*lowerIterator)->shortCommands.find(shortCommand) != shortEnd)
                     return false;
+            auto longEnd = (*lowerIterator)->longCommands.end();
             for (auto &longCommand: (*upperIterator)->longCommands)
-                if ((*lowerIterator)->longCommands.find(longCommand) != (*lowerIterator)->longCommands.end())
+                if ((*lowerIterator)->longCommands.find(longCommand) != longEnd)
                     return false;
         }
-        index++;
     }
     return true;
 }
