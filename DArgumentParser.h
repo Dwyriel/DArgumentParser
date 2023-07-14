@@ -166,7 +166,7 @@ public:
      * Removes the passed argument from the argument list.
      * @return true if it was removed, false if it wasn't (in case there was no such argument in the list).
      */
-    bool RemoveArgumentOption(DArgumentOption &argument) { RemoveArgumentOption(&argument); }
+    bool RemoveArgumentOption(DArgumentOption &argument) { return RemoveArgumentOption(&argument); }
 
     /**
      * Removes all argumentOptions previously added, clearing the list.

@@ -211,11 +211,10 @@ std::vector<std::string> DArgumentParser::generateOptionStrings(std::vector<int>
             tempStr += str;
             tempStr += ' ';
         }
-        if (arg->description.empty())
-            tempStr[tempStr.size() - 1] = '\n';
         ostringstream << tempStr;
         if (!arg->description.empty())
-            ostringstream << "  " << arg->description << '\n';
+            ostringstream << "  " << arg->description;
+        ostringstream << '\n';
         optionStrings.emplace_back(std::move(ostringstream.str()));
         index++;
     }
