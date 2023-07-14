@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <unordered_set>
 
 class DUnique {
@@ -28,8 +29,8 @@ class DArgumentOption : public DUnique {
 
     bool wasSet = false;
     std::string value;
-    std::unordered_set<char> shortCommands;
-    std::unordered_set<std::string> longCommands;
+    std::set<char> shortCommands;
+    std::set<std::string> longCommands;
     std::string description;
 
 public:
@@ -39,7 +40,7 @@ public:
 
     DArgumentOption() = delete;
 
-    DArgumentOption(bool _isOptional, bool _takesParameter, std::unordered_set<char> &&_shortCommands, std::unordered_set<std::string> &&_longCommands, std::string _description = std::string());
+    DArgumentOption(bool _isOptional, bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
 
     DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description = std::string());
 
@@ -57,9 +58,9 @@ public:
      * @return false if any of the commands were invalid(1), otherwise true.
      * @def invalid(1) - any character without a ascii representation, spaces or the character minus(-).
      */
-    bool AddShortCommand(std::unordered_set<char> &&_shortCommands);
+    bool AddShortCommand(std::set<char> &&_shortCommands);
 
-    [[nodiscard]] const std::unordered_set<char> &ShortCommands() const;
+    [[nodiscard]] const std::set<char> &ShortCommands() const;
 
     void ClearShortCommands();
 
@@ -75,9 +76,9 @@ public:
      * @return false if any of the commands were invalid(1), otherwise true.
      * @def invalid(1) - if string starting with a minus(-) sign.
      */
-    bool AddLongCommand(std::unordered_set<std::string> &&_longCommands);
+    bool AddLongCommand(std::set<std::string> &&_longCommands);
 
-    [[nodiscard]] const std::unordered_set<std::string> &LongCommands() const;
+    [[nodiscard]] const std::set<std::string> &LongCommands() const;
 
     void ClearLongCommands();
 
@@ -102,7 +103,7 @@ class DArgumentParser {
     std::string appName;
     std::string appVersion;
     std::string appDescription;
-    std::unordered_set<DArgumentOption *> arguments;
+    std::unordered_set<DArgumentOption *> argumentOptions;
     std::vector<std::tuple<std::string, std::string, std::string>> positionalArgs;
     std::vector<std::string> positionalArgsValues;
     std::string error;
@@ -113,7 +114,13 @@ class DArgumentParser {
 
     bool checkIfAllArgumentsInListAreUnique(const std::unordered_set<DArgumentOption *> &_arguments);
 
-    std::string generateUsageString();
+    std::string generateUsageSection();
+
+    void calculateSizeOfOptionsString(std::vector<int> &sizes);
+
+    std::vector<std::string> generateOptionStrings(std::vector<int> &sizes, int columnSize);
+
+    std::string generateArgumentOptionsSection();
 
 public:
     DArgumentParser(int argc, char **argv, std::string _appName = std::string(), std::string _appVersion = std::string(), std::string _appDescription = std::string());
@@ -130,7 +137,7 @@ public:
      * <br>if the argument is valid(1) then it will be added to the argument list.
      * @return true if argument was added, false if it wasn't (invalid argument).
      * @def valid(1) - At least 1 command, either long or short, is set and all of its commands are unique (when compared to other DArgumentOptions added before).
-     * @details Do not use in-place constructors as you won't be able to remove it later and clearing all the arguments will result in the memory being leaked.
+     * @details Do not use in-place constructors as you won't be able to remove it later and clearing all the argumentOptions will result in the memory being leaked.
      */
     bool AddArgumentOption(DArgumentOption *dArgumentOption);
 
@@ -142,10 +149,10 @@ public:
     bool AddArgumentOption(DArgumentOption &dArgumentOption) { return AddArgumentOption(&dArgumentOption); }
 
     /**
-     * <br>if all arguments are valid(1) then they will be added to the argument list.
-     * @return true if the arguments were added, false if they were not. (at least one argument was invalid).
+     * <br>if all argumentOptions are valid(1) then they will be added to the argument list.
+     * @return true if the argumentOptions were added, false if they were not. (at least one argument was invalid).
      * @def valid(1) - At least 1 command, either long or short, is set for each argument and all commands are unique (when compared to other DArgumentOptions added before and to each other).
-     * @details Do not use in-place constructors for DArgumentOption as you won't be able to remove it later and clearing all the arguments will result in the memory being leaked.
+     * @details Do not use in-place constructors for DArgumentOption as you won't be able to remove it later and clearing all the argumentOptions will result in the memory being leaked.
      */
     bool AddArgumentOption(std::unordered_set<DArgumentOption *> &&args);
 
@@ -159,12 +166,12 @@ public:
      * Removes the passed argument from the argument list.
      * @return true if it was removed, false if it wasn't (in case there was no such argument in the list).
      */
-    bool RemoveArgumentOption(DArgumentOption &argument);
+    bool RemoveArgumentOption(DArgumentOption &argument) { RemoveArgumentOption(&argument); }
 
     /**
-     * Removes all arguments previously added, clearing the list.
+     * Removes all argumentOptions previously added, clearing the list.
      */
-    void ClearArguments();
+    void ClearArgumentOptions();
 
     /**
      * <br>Used to generate the help string.
