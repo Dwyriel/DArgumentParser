@@ -132,14 +132,14 @@ public:
      * @def valid(1) - At least 1 command, either long or short, is set and all of its commands are unique (when compared to other DArgumentOptions added before).
      * @details Do not use in-place constructors as you won't be able to remove it later and clearing all the arguments will result in the memory being leaked.
      */
-    bool AddArgument(DArgumentOption *dArgumentOption);
+    bool AddArgumentOption(DArgumentOption *dArgumentOption);
 
     /**
      * <br>if the argument is valid(1) then it will be added to the argument list.
      * @return true if argument was added, false if it wasn't (invalid argument).
      * @def valid(1) - At least 1 command, either long or short, is set and all of its commands are unique (when compared to other DArgumentOptions added before).
      */
-    bool AddArgument(DArgumentOption &dArgumentOption);
+    bool AddArgumentOption(DArgumentOption &dArgumentOption) { return AddArgumentOption(&dArgumentOption); }
 
     /**
      * <br>if all arguments are valid(1) then they will be added to the argument list.
@@ -147,19 +147,19 @@ public:
      * @def valid(1) - At least 1 command, either long or short, is set for each argument and all commands are unique (when compared to other DArgumentOptions added before and to each other).
      * @details Do not use in-place constructors for DArgumentOption as you won't be able to remove it later and clearing all the arguments will result in the memory being leaked.
      */
-    bool AddArgument(std::unordered_set<DArgumentOption *> &&args);
+    bool AddArgumentOption(std::unordered_set<DArgumentOption *> &&args);
 
     /**
      * Removes the passed argument from the argument list.
      * @return true if it was removed, false if it wasn't (in case there was no such argument in the list).
      */
-    bool RemoveArgument(DArgumentOption *argument);
+    bool RemoveArgumentOption(DArgumentOption *argument);
 
     /**
      * Removes the passed argument from the argument list.
      * @return true if it was removed, false if it wasn't (in case there was no such argument in the list).
      */
-    bool RemoveArgument(DArgumentOption &argument);
+    bool RemoveArgumentOption(DArgumentOption &argument);
 
     /**
      * Removes all arguments previously added, clearing the list.

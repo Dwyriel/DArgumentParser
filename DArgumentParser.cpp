@@ -196,28 +196,24 @@ void DArgumentParser::SetAppDescription(const std::string &description) {
     appDescription = description;
 }
 
-bool DArgumentParser::AddArgument(DArgumentOption *dArgumentOption) {
+bool DArgumentParser::AddArgumentOption(DArgumentOption *dArgumentOption) {
     if (!checkIfArgumentIsUnique(dArgumentOption))
         return false;
     return arguments.insert(dArgumentOption).second;
 }
 
-bool DArgumentParser::AddArgument(DArgumentOption &dArgumentOption) {
-    return AddArgument(&dArgumentOption);
-}
-
-bool DArgumentParser::AddArgument(std::unordered_set<DArgumentOption *> &&args) {
+bool DArgumentParser::AddArgumentOption(std::unordered_set<DArgumentOption *> &&args) {
     if (!checkIfAllArgumentsInListAreUnique(args))
         return false;
     arguments.merge(args);
     return true;
 }
 
-bool DArgumentParser::RemoveArgument(DArgumentOption *argument) {
+bool DArgumentParser::RemoveArgumentOption(DArgumentOption *argument) {
     return arguments.erase(argument);
 }
 
-bool DArgumentParser::RemoveArgument(DArgumentOption &argument) {
+bool DArgumentParser::RemoveArgumentOption(DArgumentOption &argument) {
     return arguments.erase(&argument);
 }
 
@@ -265,6 +261,6 @@ std::string DArgumentParser::HelpText() {
     }
     helpText.reserve(usage.size() + argsHelpText.size());
     helpText += usage;
-    argsHelpText += argsHelpText;
+    helpText += argsHelpText;
     return helpText;
 }
