@@ -59,7 +59,7 @@ public:
      */
     bool AddShortCommand(std::unordered_set<char> &&_shortCommands);
 
-    const std::unordered_set<char> &ShortCommands() const;
+    [[nodiscard]] const std::unordered_set<char> &ShortCommands() const;
 
     void ClearShortCommands();
 
@@ -77,15 +77,15 @@ public:
      */
     bool AddLongCommand(std::unordered_set<std::string> &&_longCommands);
 
-    const std::unordered_set<std::string> &LongCommands() const;
+    [[nodiscard]] const std::unordered_set<std::string> &LongCommands() const;
 
     void ClearLongCommands();
 
     void AddDescription(const std::string &_description);
 
-    bool WasSet() const;
+    [[nodiscard]] bool WasSet() const;
 
-    const std::string &GetValue() const;
+    [[nodiscard]] const std::string &GetValue() const;
 };
 
 template<>
@@ -174,14 +174,14 @@ public:
      * @param command the command character to check.
      * @return Returns a boolean indicating if the option was set or not, always returns false if no option with specified command was found.
      */
-    bool WasSet(char command);
+    [[nodiscard]] bool WasSet(char command);
 
     /**
      *
      * @param command the command string to check.
      * @return Returns a boolean indicating if the option was set or not, always returns false if no option with specified command was found.
      */
-    bool WasSet(const std::string &command);
+    [[nodiscard]] bool WasSet(const std::string &command);
 
     [[nodiscard]] std::vector<std::string> GetPositionalArguments() const;
 
