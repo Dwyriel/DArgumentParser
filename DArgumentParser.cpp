@@ -3,6 +3,7 @@
 #include <random>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 /* ------ DUnique ------ */
 DUnique::DUnique() : objCounter(new int(1)) {}
@@ -231,7 +232,7 @@ std::string DArgumentParser::generateArgumentOptionsSection() {
             optionCommandsColSize = sizes[i];
     }
     auto orderedOptionStrings = generateOptionStrings(sizes, optionCommandsColSize);
-    //TODO ordering
+    std::sort(orderedOptionStrings.begin(), orderedOptionStrings.end());
     size_t totalSize = argSection.size();
     for (const auto &str: orderedOptionStrings)
         totalSize += str.size();
@@ -315,11 +316,14 @@ std::string DArgumentParser::HelpText() {
     std::string helpText;
     std::string usage = generateUsageSection();
     std::string argsHelpText;
-    if (!argumentOptions.empty()) {
+    if (!argumentOptions.empty())
         argsHelpText = generateArgumentOptionsSection();
-    }
     helpText.reserve(usage.size() + argsHelpText.size());
     helpText += usage;
     helpText += argsHelpText;
     return helpText;
+}
+
+std::string DArgumentParser::ErrorText() {
+    return error;
 }
