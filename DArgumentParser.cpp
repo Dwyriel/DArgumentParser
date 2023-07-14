@@ -104,7 +104,12 @@ const std::string &DArgumentOption::GetValue() const {
     return value;
 }
 
-DArgumentParser::DArgumentParser(int argc, char **argv, std::string _appName, std::string _appVersion, std::string _appDescription) : argumentCount(argc), argumentValues(argv), appName(std::move(_appName)), appVersion(std::move(_appVersion)), appDescription(std::move(_appDescription)) {}
+DArgumentParser::DArgumentParser(int argc, char **argv, std::string _appName, std::string _appVersion, std::string _appDescription) : argumentCount(argc), argumentValues(argv), executableName(getExecutableName(argv[0])), appName(std::move(_appName)), appVersion(std::move(_appVersion)), appDescription(std::move(_appDescription)) {}
+
+std::string DArgumentParser::getExecutableName(char *execCall) {
+    std::string execName(execCall);
+    return execName.substr(execName.find_last_of('/') + 1);
+}
 
 bool DArgumentParser::checkIfArgumentIsUnique(DArgumentOption *dArgumentOption) {
     if (arguments.find(dArgumentOption) != arguments.end())
@@ -143,6 +148,34 @@ bool DArgumentParser::checkIfAllArgumentsInListAreUnique(const std::unordered_se
         }
     }
     return true;
+}
+
+std::string DArgumentParser::generateUsageString() {
+    std::string usageString = "Usage: ";
+    std::string optionString = arguments.empty() ? std::string() : std::string(" [options]");
+    std::string posArgString;
+    if (!positionalArgs.empty()) {
+        std::string::size_type totalSize = 0;
+        for (const auto &posArg: positionalArgs)
+            totalSize += std::get<2>(posArg).empty() ? std::get<0>(posArg).size() + 3 : std::get<2>(posArg).size() + 1;
+        posArgString.reserve(totalSize);
+        for (const auto &posArg: positionalArgs) {
+            if (std::get<2>(posArg).empty()) {
+                posArgString += " [";
+                posArgString += std::get<0>(posArg);
+                posArgString += ']';
+                continue;
+            }
+            posArgString += ' ';
+            posArgString += std::get<2>(posArg);
+        }
+    }
+    usageString.reserve(usageString.size() + executableName.size() + optionString.size() + posArgString.size() + 1);
+    usageString += executableName;
+    usageString += optionString;
+    usageString += posArgString;
+    usageString += '\n';
+    return usageString;
 }
 
 void DArgumentParser::SetAppInfo(const std::string &name, const std::string &version, const std::string &description) {
@@ -221,4 +254,17 @@ std::string DArgumentParser::VersionText() {
     versionText += ' ';
     versionText.append(appVersion);
     return versionText;
+}
+
+std::string DArgumentParser::HelpText() {
+    std::string helpText;
+    std::string usage = generateUsageString();
+    std::string argsHelpText;
+    if (!arguments.empty()){
+        //TODO
+    }
+    helpText.reserve(usage.size() + argsHelpText.size());
+    helpText += usage;
+    argsHelpText += argsHelpText;
+    return helpText;
 }

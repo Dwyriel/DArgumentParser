@@ -98,6 +98,7 @@ struct std::hash<DArgumentOption> {
 class DArgumentParser {
     int argumentCount;
     char **argumentValues;
+    const std::string executableName;
     std::string appName;
     std::string appVersion;
     std::string appDescription;
@@ -106,9 +107,13 @@ class DArgumentParser {
     std::vector<std::string> positionalArgsValues;
     std::string error;
 
+    static std::string getExecutableName(char *execCall);
+
     bool checkIfArgumentIsUnique(DArgumentOption *dArgumentOption);
 
     bool checkIfAllArgumentsInListAreUnique(const std::unordered_set<DArgumentOption *> &_arguments);
+
+    std::string generateUsageString();
 
 public:
     DArgumentParser(int argc, char **argv, std::string _appName = std::string(), std::string _appVersion = std::string(), std::string _appDescription = std::string());
