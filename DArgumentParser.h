@@ -27,6 +27,8 @@ class DArgumentOption : public DUnique {
 
     static std::string generateID();
 
+    bool isOptional;
+    bool takesParameter;
     bool wasSet = false;
     std::string value;
     std::set<char> shortCommands;
@@ -35,14 +37,14 @@ class DArgumentOption : public DUnique {
 
 public:
     const std::string id;
-    const bool isOptional;
-    const bool takesParameter;
 
-    DArgumentOption() = delete;
+    explicit DArgumentOption();
+
+    DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
 
     DArgumentOption(bool _isOptional, bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
 
-    DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description = std::string());
+    DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description);
 
     ~DArgumentOption();
 
@@ -83,6 +85,14 @@ public:
     void ClearLongCommands();
 
     void AddDescription(const std::string &_description);
+
+    [[nodiscard]] bool IsOptional() const;
+
+    void SetIsOptional(bool _isOptional);
+
+    [[nodiscard]] bool GetTakesParameter() const;
+
+    void SetTakesParameter(bool _takesParameter);
 
     [[nodiscard]] bool WasSet() const;
 

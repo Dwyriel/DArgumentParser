@@ -39,6 +39,10 @@ std::string DArgumentOption::generateID() {
     return id;
 }
 
+DArgumentOption::DArgumentOption() : id(generateID()), isOptional(true), takesParameter(false) {}
+
+DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), isOptional(true), takesParameter(false), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
+
 DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
 DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), description(std::move(_description)) {}
@@ -96,6 +100,22 @@ void DArgumentOption::ClearLongCommands() {
 
 void DArgumentOption::AddDescription(const std::string &_description) {
     description = _description;
+}
+
+bool DArgumentOption::IsOptional() const {
+    return isOptional;
+}
+
+void DArgumentOption::SetIsOptional(bool _isOptional) {
+    isOptional = _isOptional;
+}
+
+bool DArgumentOption::GetTakesParameter() const {
+    return takesParameter;
+}
+
+void DArgumentOption::SetTakesParameter(bool _takesParameter) {
+    takesParameter = _takesParameter;
 }
 
 bool DArgumentOption::WasSet() const {
