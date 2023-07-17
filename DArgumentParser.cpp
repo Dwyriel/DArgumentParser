@@ -39,13 +39,13 @@ std::string DArgumentOption::generateID() {
     return id;
 }
 
-DArgumentOption::DArgumentOption() : id(generateID()), isOptional(true), takesParameter(false) {}
+DArgumentOption::DArgumentOption() : id(generateID()), takesParameter(false) {}
 
-DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), isOptional(true), takesParameter(false), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()),  takesParameter(false), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), takesParameter(_takesParameter), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description) : id(generateID()), isOptional(_isOptional), takesParameter(_takesParameter), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _takesParameter, std::string _description) : id(generateID()),  takesParameter(_takesParameter), description(std::move(_description)) {}
 
 DArgumentOption::~DArgumentOption() {
     if (--(*objCounter) > 0)
@@ -100,14 +100,6 @@ void DArgumentOption::ClearLongCommands() {
 
 void DArgumentOption::AddDescription(const std::string &_description) {
     description = _description;
-}
-
-bool DArgumentOption::IsOptional() const {
-    return isOptional;
-}
-
-void DArgumentOption::SetIsOptional(bool _isOptional) {
-    isOptional = _isOptional;
 }
 
 bool DArgumentOption::GetTakesParameter() const {
@@ -262,6 +254,13 @@ std::string DArgumentParser::generateArgumentOptionsSection() {
     return std::move(argSection);
 }
 
+bool DArgumentParser::checkIfAnyOptionTakesValue() {
+    for (auto arg: argumentOptions)
+        if (arg->takesParameter)
+            return true;
+    return false;
+}
+
 void DArgumentParser::SetAppInfo(const std::string &name, const std::string &version, const std::string &description) {
     appName = name;
     appVersion = version;
@@ -344,6 +343,11 @@ std::string DArgumentParser::HelpText() {
     return helpText;
 }
 
-std::string DArgumentParser::ErrorText() {
-    return error;
+std::string DArgumentParser::ErrorText() const {
+    return errorText;
+}
+
+DParseResult DArgumentParser::Parse() {
+    bool someOptionTakesValue = checkIfAnyOptionTakesValue();
+    return DParseResult::ParseSuccessful;
 }

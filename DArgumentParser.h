@@ -27,7 +27,6 @@ class DArgumentOption : public DUnique {
 
     static std::string generateID();
 
-    bool isOptional;
     bool takesParameter;
     bool wasSet = false;
     std::string value;
@@ -38,13 +37,16 @@ class DArgumentOption : public DUnique {
 public:
     const std::string id;
 
+    /**
+     * @details instantiate a DArgumentOption with default values (takesParameter = false)
+     */
     explicit DArgumentOption();
 
     DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
 
-    DArgumentOption(bool _isOptional, bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
+    DArgumentOption(bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
 
-    DArgumentOption(bool _isOptional, bool _takesParameter, std::string _description);
+    DArgumentOption(bool _takesParameter, std::string _description);
 
     ~DArgumentOption();
 
@@ -86,10 +88,6 @@ public:
 
     void AddDescription(const std::string &_description);
 
-    [[nodiscard]] bool IsOptional() const;
-
-    void SetIsOptional(bool _isOptional);
-
     [[nodiscard]] bool GetTakesParameter() const;
 
     void SetTakesParameter(bool _takesParameter);
@@ -116,7 +114,7 @@ class DArgumentParser {
     std::unordered_set<DArgumentOption *> argumentOptions;
     std::vector<std::tuple<std::string, std::string, std::string>> positionalArgs;
     std::vector<std::string> positionalArgsValues;
-    std::string error;
+    std::string errorText;
 
     static std::string getExecutableName(char *execCall);
 
@@ -132,7 +130,10 @@ class DArgumentParser {
 
     std::string generateArgumentOptionsSection();
 
+    bool checkIfAnyOptionTakesValue();
+
 public:
+
     DArgumentParser(int argc, char **argv, std::string _appName = std::string(), std::string _appVersion = std::string(), std::string _appDescription = std::string());
 
     void SetAppInfo(const std::string &name, const std::string &version, const std::string &description = std::string());
@@ -211,13 +212,13 @@ public:
 
     [[nodiscard]] std::string HelpText();
 
-    [[nodiscard]] std::string ErrorText();
+    [[nodiscard]] std::string ErrorText() const;
 
     /**
      * <br>Parses the argv passed on creation based on the positional arguments and option arguments added.
      * @return true if parse was successful, false if an error occurred (non-optional parameter not passed). Call "ErrorText" function to retrieve a printable string of the error.
      */
-    bool Parse();
+    DParseResult Parse();
 };
 
 #endif //KTARGUMENTPARSER_LIBRARY_H
