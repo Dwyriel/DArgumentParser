@@ -130,7 +130,9 @@ class DArgumentParser {
 
     std::string generateArgumentOptionsSection();
 
-    bool checkIfAnyOptionTakesValue();
+    void resetParsedValues();
+
+    std::vector<DArgumentOption *> getOptionsThatTakeValue();
 
 public:
 

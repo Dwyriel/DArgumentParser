@@ -41,11 +41,11 @@ std::string DArgumentOption::generateID() {
 
 DArgumentOption::DArgumentOption() : id(generateID()), takesParameter(false) {}
 
-DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()),  takesParameter(false), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), takesParameter(false), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
 DArgumentOption::DArgumentOption(bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), takesParameter(_takesParameter), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _takesParameter, std::string _description) : id(generateID()),  takesParameter(_takesParameter), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(bool _takesParameter, std::string _description) : id(generateID()), takesParameter(_takesParameter), description(std::move(_description)) {}
 
 DArgumentOption::~DArgumentOption() {
     if (--(*objCounter) > 0)
@@ -254,11 +254,21 @@ std::string DArgumentParser::generateArgumentOptionsSection() {
     return std::move(argSection);
 }
 
-bool DArgumentParser::checkIfAnyOptionTakesValue() {
+void DArgumentParser::resetParsedValues() {
+    positionalArgsValues.clear();
+    for (auto arg: argumentOptions) {
+        arg->wasSet = false;
+        arg->value.clear();
+        errorText.clear();
+    }
+}
+
+std::vector<DArgumentOption *> DArgumentParser::getOptionsThatTakeValue() {
+    std::vector<DArgumentOption *> args;
     for (auto arg: argumentOptions)
         if (arg->takesParameter)
-            return true;
-    return false;
+            args.push_back(arg);
+    return std::move(args);
 }
 
 void DArgumentParser::SetAppInfo(const std::string &name, const std::string &version, const std::string &description) {
@@ -348,6 +358,6 @@ std::string DArgumentParser::ErrorText() const {
 }
 
 DParseResult DArgumentParser::Parse() {
-    bool someOptionTakesValue = checkIfAnyOptionTakesValue();
+    auto optionsThatTakeValue = getOptionsThatTakeValue();
     return DParseResult::ParseSuccessful;
 }
