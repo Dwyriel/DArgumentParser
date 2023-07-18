@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <algorithm>
 
+const char *valueString = "<value> "; //size of 8
+
 /* ------ DUnique ------ */
 DUnique::DUnique() : objCounter(new int(1)) {}
 
@@ -192,10 +194,21 @@ std::string DArgumentParser::generateUsageSection() {
     return usageString;
 }
 
+std::string DArgumentParser::generateDescriptionSection() {
+    if (appDescription.empty())
+        return {};
+    std::string descriptionString;
+    descriptionString.reserve(2 + appDescription.size());
+    descriptionString += '\n';
+    descriptionString += appDescription;
+    descriptionString += '\n';
+    return descriptionString;
+}
+
 void DArgumentParser::calculateSizeOfOptionsString(std::vector<int> &sizes) {
     int index = 0;
     for (auto arg: argumentOptions) {
-        sizes[index] = (int) ((2 * arg->shortCommands.size()) + arg->shortCommands.size() + arg->longCommands.size());
+        sizes[index] = (int) ((2 * arg->shortCommands.size()) + arg->shortCommands.size() + arg->longCommands.size() + (arg->takesParameter * 8));//strlen("<value> ") == 8
         auto iterator = arg->longCommands.begin(), end = arg->longCommands.end();
         while (iterator != end) {
             sizes[index] += (int) (2 + (*iterator).size());
@@ -224,6 +237,8 @@ std::vector<std::string> DArgumentParser::generateOptionStrings(std::vector<int>
             tempStr += str;
             tempStr += ' ';
         }
+        if (arg->takesParameter)
+            tempStr += valueString;
         ostringstream << tempStr;
         if (!arg->description.empty())
             ostringstream << "  " << arg->description;
@@ -344,11 +359,11 @@ std::string DArgumentParser::VersionText() {
 std::string DArgumentParser::HelpText() {
     std::string helpText;
     std::string usage = generateUsageSection();
-    std::string argsHelpText;
-    if (!argumentOptions.empty())
-        argsHelpText = generateArgumentOptionsSection();
-    helpText.reserve(usage.size() + argsHelpText.size());
+    std::string description = generateDescriptionSection();
+    std::string argsHelpText = argumentOptions.empty() ? std::string() : generateArgumentOptionsSection();
+    helpText.reserve(usage.size() + description.size() + argsHelpText.size());
     helpText += usage;
+    helpText += description;
     helpText += argsHelpText;
     return helpText;
 }
