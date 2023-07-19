@@ -7,6 +7,7 @@
 
 const char *valueString = "<value> "; //size of 8
 const char minusSign = '-', equalSign = '=';
+const int shortCommandStartPos = 1, longCommandStartPos = 2;
 
 /* ------ DUnique ------ */
 DUnique::DUnique() : objCounter(new int(1)) {}
@@ -126,6 +127,14 @@ DArgumentParser::DArgumentParser(int argc, char **argv, std::string _appName, st
 std::string DArgumentParser::getExecutableName(char *execCall) {
     std::string execName(execCall);
     return execName.substr(execName.find_last_of('/') + 1);
+}
+
+bool DArgumentParser::isLongCommand(const std::string &argument) {
+    return (argument.size() > longCommandStartPos && argument[0] == minusSign && argument[1] == minusSign);
+}
+
+bool DArgumentParser::isShortCommand(const std::string &argument) {
+    return (argument.size() > shortCommandStartPos && argument[0] == minusSign && argument[1] != minusSign);
 }
 
 bool DArgumentParser::checkIfArgumentIsUnique(DArgumentOption *dArgumentOption) {
@@ -272,10 +281,47 @@ std::string DArgumentParser::generateArgumentOptionsSection() {
 
 void DArgumentParser::resetParsedValues() {
     positionalArgsValues.clear();
+    errorText.clear();
     for (auto arg: argumentOptions) {
         arg->wasSet = false;
         arg->value.clear();
-        errorText.clear();
+    }
+}
+
+void DArgumentParser::generateErrorText(DParseResult error, const std::string &command) {
+    switch (error) {
+        case DParseResult::InvalidOption:
+            errorText = "Option --" + command + " is invalid";
+            break;
+        case DParseResult::ValuePassedToOptionThatDoesNotTakeValue:
+            errorText = "Option --" + command + " received a value but it doesn't take any";
+            break;
+        case DParseResult::NoValueWasPassedToOption:
+            errorText = "Option --" + command + " takes a value but none was passed.";
+            break;
+        default:
+            return;
+    }
+}
+
+void DArgumentParser::generateErrorText(DParseResult error, char command) {
+    std::string str;
+    str = command;
+    switch (error) {
+        case DParseResult::InvalidOption:
+            errorText = "Option -" + str + " is invalid";
+            break;
+        case DParseResult::ValuePassedToOptionThatDoesNotTakeValue:
+            errorText = "Option -" + str + " received a value but it doesn't take any";
+            break;
+        case DParseResult::NoValueWasPassedToOption:
+            errorText = "Option -" + str + " takes a value but none was passed.";
+            break;
+        case DParseResult::OptionsThatTakesValueNeedsToBeSetSeparately:
+            errorText = "Options that takes a value needs to be set separately. Error with option: -" + str;
+            break;
+        default:
+            return;
     }
 }
 
@@ -374,6 +420,69 @@ std::string DArgumentParser::ErrorText() const {
 }
 
 DParseResult DArgumentParser::Parse() {
-    auto optionsThatTakeValue = getOptionsThatTakeValue();
+    resetParsedValues();
+    if (argumentCount < 2)
+        return DParseResult::ParseSuccessful;
+    std::vector<std::string> arguments;
+    DParseResult parseResult;
+    for (int index = 1; index < argumentCount; index++) {
+        std::string currArg(argumentValues[index]);
+        if (isLongCommand(currArg)) {
+            parseResult = parseLongCommand(currArg, index);
+            if (parseResult != DParseResult::ParseSuccessful)
+                return parseResult;
+            continue;
+        }
+        if (isShortCommand(currArg)) {
+            parseResult = parseShortCommand(currArg, index);
+            if (parseResult != DParseResult::ParseSuccessful)
+                return parseResult;
+            continue;
+        }
+        positionalArgsValues.push_back(currArg);
+    }
+    //auto optionsThatTakeValue = getOptionsThatTakeValue();
+
+    return DParseResult::ParseSuccessful;
+}
+
+DParseResult DArgumentParser::parseLongCommand(const std::string &argument, int &currentIndex) {
+    size_t posOfEqualSign = argument.find_first_of(equalSign, longCommandStartPos);
+    std::string command = argument.substr(longCommandStartPos, posOfEqualSign - longCommandStartPos);
+    bool commandFound = false;
+    for (auto arg: argumentOptions) {
+        auto iter = arg->longCommands.find(command);
+        if (iter == arg->longCommands.end())
+            continue;
+        commandFound = true;
+        if (!arg->takesParameter && posOfEqualSign != std::string::npos) {
+            generateErrorText(DParseResult::ValuePassedToOptionThatDoesNotTakeValue, command);
+            return DParseResult::ValuePassedToOptionThatDoesNotTakeValue;
+        }
+        if (arg->takesParameter) {
+            if (posOfEqualSign == std::string::npos) {
+                if (++currentIndex == argumentCount) {
+                    generateErrorText(DParseResult::NoValueWasPassedToOption, command);
+                    return DParseResult::NoValueWasPassedToOption;
+                }
+                arg->value = std::string(argumentValues[currentIndex]);
+                if (isLongCommand(arg->value) || isShortCommand(arg->value)) {
+                    generateErrorText(DParseResult::NoValueWasPassedToOption, command);
+                    return DParseResult::NoValueWasPassedToOption;
+                }
+            } else
+                arg->value = argument.substr(posOfEqualSign + 1);
+        }
+        arg->wasSet = true;
+        break;
+    }
+    if (!commandFound) {
+        generateErrorText(DParseResult::InvalidOption, command);
+        return DParseResult::InvalidOption;
+    }
+    return DParseResult::ParseSuccessful;
+}
+
+DParseResult DArgumentParser::parseShortCommand(const std::string &argument, int &currentIndex) {
     return DParseResult::ParseSuccessful;
 }

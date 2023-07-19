@@ -6,6 +6,14 @@
 #include <set>
 #include <unordered_set>
 
+enum class DParseResult : char {
+    ParseSuccessful,
+    InvalidOption,
+    ValuePassedToOptionThatDoesNotTakeValue,
+    NoValueWasPassedToOption,
+    OptionsThatTakesValueNeedsToBeSetSeparately
+};
+
 class DUnique {
 protected:
     int *objCounter;
@@ -118,6 +126,14 @@ class DArgumentParser {
 
     static std::string getExecutableName(char *execCall);
 
+    static bool isLongCommand(const std::string &argument);
+
+    static bool isShortCommand(const std::string &argument);
+
+    void generateErrorText(DParseResult error, const std::string &command);
+
+    void generateErrorText(DParseResult error, char command);
+
     bool checkIfArgumentIsUnique(DArgumentOption *dArgumentOption);
 
     bool checkIfAllArgumentsInListAreUnique(const std::unordered_set<DArgumentOption *> &_arguments);
@@ -135,6 +151,10 @@ class DArgumentParser {
     void resetParsedValues();
 
     std::vector<DArgumentOption *> getOptionsThatTakeValue();
+
+    DParseResult parseLongCommand(const std::string &argument, int &currentIndex);
+
+    DParseResult parseShortCommand(const std::string &argument, int &currentIndex);
 
 public:
 
