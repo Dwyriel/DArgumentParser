@@ -71,14 +71,14 @@ public:
     /**
      * Adds the passed string to the command list for this option, unless it was already included.
      * @return true if command was added, false if command was invalid(1) or not added.
-     * @def invalid(1) - if string starting with a minus(-) sign.
+     * @def invalid(1) - if string starts with a minus(-) sign or has a equal(=) sign.
      */
     bool AddLongCommand(const std::string &longCommand);
 
     /**
      * Adds the passed strings to the command list for this option, if any of the strings were already added it won't be added again.
      * @return false if any of the commands were invalid(1), otherwise true.
-     * @def invalid(1) - if string starting with a minus(-) sign.
+     * @def invalid(1) - if string starts with a minus(-) sign or has a equal(=) sign.
      */
     bool AddLongCommand(std::set<std::string> &&_longCommands);
 

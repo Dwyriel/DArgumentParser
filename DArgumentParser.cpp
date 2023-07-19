@@ -6,6 +6,7 @@
 #include <algorithm>
 
 const char *valueString = "<value> "; //size of 8
+const char minusSign = '-', equalSign = '=';
 
 /* ------ DUnique ------ */
 DUnique::DUnique() : objCounter(new int(1)) {}
@@ -57,14 +58,14 @@ DArgumentOption::~DArgumentOption() {
 }
 
 bool DArgumentOption::AddShortCommand(char shortCommand) {
-    if (shortCommand < 33 || shortCommand == '-' || shortCommand == 127)
+    if (shortCommand < 33 || shortCommand == minusSign || shortCommand == 127)
         return false;
     return shortCommands.insert(shortCommand).second;
 }
 
 bool DArgumentOption::AddShortCommand(std::set<char> &&_shortCommands) {
     for (auto shortCommand: _shortCommands)
-        if (shortCommand < 33 || shortCommand == '-' || shortCommand == 127)
+        if (shortCommand < 33 || shortCommand == minusSign || shortCommand == 127)
             return false;
     shortCommands.merge(_shortCommands);
     return true;
@@ -79,14 +80,14 @@ void DArgumentOption::ClearShortCommands() {
 }
 
 bool DArgumentOption::AddLongCommand(const std::string &longCommand) {
-    if (longCommand.front() == '-')
+    if (longCommand.front() == minusSign || longCommand.find(equalSign) != std::string::npos)
         return false;
     return longCommands.insert(longCommand).second;
 }
 
 bool DArgumentOption::AddLongCommand(std::set<std::string> &&_longCommands) {
     for (auto longCommand: _longCommands)
-        if (longCommand.front() == '-')
+        if (longCommand.front() == minusSign || longCommand.find(equalSign) != std::string::npos)
             return false;
     longCommands.merge(_longCommands);
     return true;
@@ -228,7 +229,7 @@ std::vector<std::string> DArgumentParser::generateOptionStrings(std::vector<int>
         std::string tempStr;
         tempStr.reserve(sizes[index]);
         for (auto c: arg->shortCommands) {
-            tempStr += '-';
+            tempStr += minusSign;
             tempStr += c;
             tempStr += ' ';
         }
