@@ -218,7 +218,7 @@ std::string DArgumentParser::generateDescriptionSection() {
 void DArgumentParser::calculateSizeOfArgumentsString(std::vector<int> &sizes) {
     int index = 0;
     for (auto arg: positionalArgs)
-        sizes[index] = (int) (std::get<2>(arg).empty() ? (std::get<0>(arg).size() + 2) : std::get<2>(arg).size());
+        sizes[index++] = (int) (std::get<2>(arg).empty() ? (std::get<0>(arg).size() + 2) : std::get<2>(arg).size());
 }
 
 std::string DArgumentParser::generatePositionalArgsSection() {
@@ -226,7 +226,7 @@ std::string DArgumentParser::generatePositionalArgsSection() {
     std::vector<int> sizes(positionalArgs.size());
     calculateSizeOfArgumentsString(sizes);
     int optionArgsColSize = 0;
-    for (int i = 0; i < argumentOptions.size(); i++) {
+    for (int i = 0; i < positionalArgs.size(); i++) {
         if (sizes[i] > optionArgsColSize)
             optionArgsColSize = sizes[i];
     }
