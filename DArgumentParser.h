@@ -214,6 +214,8 @@ public:
      */
     void AddPositionalArgument(std::string name, std::string description, std::string syntax = std::string());
 
+    void ClearPositionalArgumets();
+
     /**
      *
      * @param command the command character to check.
