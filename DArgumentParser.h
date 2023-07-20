@@ -36,7 +36,7 @@ class DArgumentOption : public DUnique {
     static std::string generateID();
 
     bool takesParameter;
-    bool wasSet = false;
+    int wasSet = 0;
     std::string value;
     std::set<char> shortCommands;
     std::set<std::string> longCommands;
@@ -100,7 +100,7 @@ public:
 
     void SetTakesParameter(bool _takesParameter);
 
-    [[nodiscard]] bool WasSet() const;
+    [[nodiscard]] int WasSet() const;
 
     [[nodiscard]] const std::string &GetValue() const;
 };
@@ -221,14 +221,14 @@ public:
      * @param command the command character to check.
      * @return Returns a boolean indicating if the option was set or not, always returns false if no option with specified command was found.
      */
-    [[nodiscard]] bool WasSet(char command);
+    [[nodiscard]] int WasSet(char command);
 
     /**
      *
      * @param command the command string to check.
      * @return Returns a boolean indicating if the option was set or not, always returns false if no option with specified command was found.
      */
-    [[nodiscard]] bool WasSet(const std::string &command);
+    [[nodiscard]] int WasSet(const std::string &command);
 
     [[nodiscard]] std::vector<std::string> GetPositionalArguments() const;
 

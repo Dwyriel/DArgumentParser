@@ -114,7 +114,7 @@ void DArgumentOption::SetTakesParameter(bool _takesParameter) {
     takesParameter = _takesParameter;
 }
 
-bool DArgumentOption::WasSet() const {
+int DArgumentOption::WasSet() const {
     return wasSet;
 }
 
@@ -283,7 +283,7 @@ void DArgumentParser::resetParsedValues() {
     positionalArgsValues.clear();
     errorText.clear();
     for (auto arg: argumentOptions) {
-        arg->wasSet = false;
+        arg->wasSet = 0;
         arg->value.clear();
     }
 }
@@ -376,18 +376,18 @@ void DArgumentParser::AddPositionalArgument(std::string name, std::string descri
     positionalArgs.emplace_back(std::move(name), std::move(description), std::move(syntax));
 }
 
-bool DArgumentParser::WasSet(char command) {
+int DArgumentParser::WasSet(char command) {
     for (auto argument: argumentOptions)
         if (argument->shortCommands.find(command) != argument->shortCommands.end())
             return argument->wasSet;
-    return false;
+    return 0;
 }
 
-bool DArgumentParser::WasSet(const std::string &command) {
+int DArgumentParser::WasSet(const std::string &command) {
     for (auto argument: argumentOptions)
         if (argument->longCommands.find(command) != argument->longCommands.end())
             return argument->wasSet;
-    return false;
+    return 0;
 }
 
 std::vector<std::string> DArgumentParser::GetPositionalArguments() const {
@@ -451,8 +451,8 @@ DParseResult DArgumentParser::parseLongCommand(const std::string &argument, int 
     std::string command = argument.substr(longCommandStartPos, posOfEqualSign - longCommandStartPos);
     bool commandFound = false;
     for (auto arg: argumentOptions) {
-        auto iter = arg->longCommands.find(command);
-        if (iter == arg->longCommands.end())
+        auto iterator = arg->longCommands.find(command);
+        if (iterator == arg->longCommands.end())
             continue;
         commandFound = true;
         if (!arg->takesParameter && posOfEqualSign != std::string::npos) {
@@ -473,7 +473,7 @@ DParseResult DArgumentParser::parseLongCommand(const std::string &argument, int 
             } else
                 arg->value = argument.substr(posOfEqualSign + 1);
         }
-        arg->wasSet = true;
+        arg->wasSet++;
         break;
     }
     if (!commandFound) {
