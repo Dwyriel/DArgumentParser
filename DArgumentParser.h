@@ -130,10 +130,6 @@ class DArgumentParser {
 
     static bool isShortCommand(const std::string &argument);
 
-    void generateErrorText(DParseResult error, const std::string &command);
-
-    void generateErrorText(DParseResult error, char command);
-
     bool checkIfArgumentIsUnique(DArgumentOption *dArgumentOption);
 
     bool checkIfAllArgumentsInListAreUnique(const std::unordered_set<DArgumentOption *> &_arguments);
@@ -148,9 +144,11 @@ class DArgumentParser {
 
     std::string generateArgumentOptionsSection();
 
-    void resetParsedValues();
+    void generateErrorText(DParseResult error, const std::string &command);
 
-    std::vector<DArgumentOption *> getOptionsThatTakeValue();
+    void generateErrorText(DParseResult error, char command);
+
+    void resetParsedValues();
 
     DParseResult parseLongCommand(const std::string &argument, int &currentIndex);
 
