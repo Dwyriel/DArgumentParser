@@ -215,6 +215,41 @@ std::string DArgumentParser::generateDescriptionSection() {
     return descriptionString;
 }
 
+void DArgumentParser::calculateSizeOfArgumentsString(std::vector<int> &sizes) {
+    int index = 0;
+    for (auto arg: positionalArgs)
+        sizes[index] = (int) (std::get<2>(arg).empty() ? (std::get<0>(arg).size() + 2) : std::get<2>(arg).size());
+}
+
+std::string DArgumentParser::generatePositionalArgsSection() {
+    std::string argSection = "\nArguments:\n";
+    std::vector<int> sizes(positionalArgs.size());
+    calculateSizeOfArgumentsString(sizes);
+    int optionArgsColSize = 0;
+    for (int i = 0; i < argumentOptions.size(); i++) {
+        if (sizes[i] > optionArgsColSize)
+            optionArgsColSize = sizes[i];
+    }
+    for (auto arg: positionalArgs) {
+        std::ostringstream ostringstream;
+        ostringstream << "   " << std::setw(optionArgsColSize) << std::left;
+        bool customSyntax = !std::get<2>(arg).empty();
+        if (customSyntax)
+            ostringstream << std::get<2>(arg);
+        else {
+            std::string tempStr;
+            tempStr.reserve(2 + std::get<0>(arg).size());
+            tempStr += '[';
+            tempStr += std::get<0>(arg);
+            tempStr += ']';
+            ostringstream << tempStr;
+        }
+        ostringstream << "   " << std::get<1>(arg) << '\n';
+        argSection += ostringstream.str();
+    }
+    return std::move(argSection);
+}
+
 void DArgumentParser::calculateSizeOfOptionsString(std::vector<int> &sizes) {
     int index = 0;
     for (auto arg: argumentOptions) {
@@ -474,11 +509,13 @@ std::string DArgumentParser::HelpText() {
     std::string helpText;
     std::string usage = generateUsageSection();
     std::string description = generateDescriptionSection();
-    std::string argsHelpText = argumentOptions.empty() ? std::string() : generateArgumentOptionsSection();
-    helpText.reserve(usage.size() + description.size() + argsHelpText.size());
+    std::string posArgsHelpText = generatePositionalArgsSection();
+    std::string optionsArgsHelpText = argumentOptions.empty() ? std::string() : generateArgumentOptionsSection();
+    helpText.reserve(usage.size() + description.size() + posArgsHelpText.size() + optionsArgsHelpText.size());
     helpText += usage;
     helpText += description;
-    helpText += argsHelpText;
+    helpText += posArgsHelpText;
+    helpText += optionsArgsHelpText;
     return helpText;
 }
 

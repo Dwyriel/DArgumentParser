@@ -138,6 +138,10 @@ class DArgumentParser {
 
     std::string generateDescriptionSection();
 
+    void calculateSizeOfArgumentsString(std::vector<int> &sizes);
+
+    std::string generatePositionalArgsSection();
+
     void calculateSizeOfOptionsString(std::vector<int> &sizes);
 
     std::vector<std::string> generateOptionStrings(std::vector<int> &sizes, int columnSize);
