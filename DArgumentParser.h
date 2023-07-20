@@ -230,7 +230,11 @@ public:
      */
     [[nodiscard]] int WasSet(const std::string &command);
 
-    [[nodiscard]] std::vector<std::string> GetPositionalArguments() const;
+    /**
+     * Retrieves the value of every positional argument that was set during the parsing.
+     * @return Returns a const reference to the positionalArgsValues list.
+     */
+    [[nodiscard]] const std::vector<std::string> &GetPositionalArguments() const;
 
     [[nodiscard]] std::string VersionText();
 

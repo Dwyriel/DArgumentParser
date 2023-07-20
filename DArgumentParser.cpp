@@ -457,7 +457,7 @@ int DArgumentParser::WasSet(const std::string &command) {
     return 0;
 }
 
-std::vector<std::string> DArgumentParser::GetPositionalArguments() const {
+const std::vector<std::string> &DArgumentParser::GetPositionalArguments() const {
     return positionalArgsValues;
 }
 
