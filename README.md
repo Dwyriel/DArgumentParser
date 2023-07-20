@@ -47,11 +47,11 @@ After all option objects are created, they should be added to the parser in orde
 It's also possible to specify positional arguments, they will be used for creating the help text and aren't needed for the parsing itself.
 ```c++
     parser.AddPositionalArgument("smile", "the custom smile to use");
-    //or, in case we want a custom syntax
+    //or, in case a custom syntax is desired (for more complex options)
     parser.AddPositionalArgument("smile", "the custom smiles to use, in the order they were passed in", "[smiles...]");
 ```
 When everything is set up ```Parse()``` should be called. For every option it finds it will add one to the wasSet attribute of the option, and all positional arguments will be added to the parser's positionalArgsValues attribute.<br>
-Because wasSet is an integer, we can know if the user try to set an option more than once, and it still can be used as a boolean, as 0 is taken as false, and any other value as true.
+Because wasSet is an integer, it's possible to know if the user set an option more than once, and it can still be used as a boolean, as 0 resolves to false, and any other value to true.
 ```c++
     parser.Parse();
     if (increaseFrequency.WasSet())
