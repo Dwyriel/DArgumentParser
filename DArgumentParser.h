@@ -96,7 +96,7 @@ public:
 
     void AddDescription(const std::string &_description);
 
-    [[nodiscard]] bool GetTakesParameter() const;
+    [[nodiscard]] bool TakesParameter() const;
 
     void SetTakesParameter(bool _takesParameter);
 
@@ -218,17 +218,18 @@ public:
      */
     void AddPositionalArgument(std::string name, std::string description, std::string syntax = std::string());
 
+    /**
+     * Removes all positional arguments previously added, clearing the list.
+     */
     void ClearPositionalArgumets();
 
     /**
-     *
      * @param command the command character to check.
      * @return Returns a boolean indicating if the option was set or not, always returns false if no option with specified command was found.
      */
     [[nodiscard]] int WasSet(char command);
 
     /**
-     *
      * @param command the command string to check.
      * @return Returns a boolean indicating if the option was set or not, always returns false if no option with specified command was found.
      */

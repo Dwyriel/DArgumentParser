@@ -106,7 +106,7 @@ void DArgumentOption::AddDescription(const std::string &_description) {
     description = _description;
 }
 
-bool DArgumentOption::GetTakesParameter() const {
+bool DArgumentOption::TakesParameter() const {
     return takesParameter;
 }
 
