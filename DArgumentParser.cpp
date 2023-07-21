@@ -43,13 +43,13 @@ std::string DArgumentOption::generateID() {
     return id;
 }
 
-DArgumentOption::DArgumentOption() : id(generateID()), takesParameter(false) {}
+DArgumentOption::DArgumentOption() : id(generateID()), type(DArgumentOptionType::NormalOption) {}
 
-DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), takesParameter(false), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), type(DArgumentOptionType::NormalOption), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), takesParameter(_takesParameter), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(DArgumentOptionType _type, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), type(_type), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(bool _takesParameter, std::string _description) : id(generateID()), takesParameter(_takesParameter), description(std::move(_description)) {}
+DArgumentOption::DArgumentOption(DArgumentOptionType _type, std::string _description) : id(generateID()), type(_type), description(std::move(_description)) {}
 
 DArgumentOption::~DArgumentOption() {
     if (--(*objCounter) > 0)
@@ -106,12 +106,12 @@ void DArgumentOption::AddDescription(const std::string &_description) {
     description = _description;
 }
 
-bool DArgumentOption::TakesParameter() const {
-    return takesParameter;
+DArgumentOptionType DArgumentOption::GetType() const {
+    return type;
 }
 
-void DArgumentOption::SetTakesParameter(bool _takesParameter) {
-    takesParameter = _takesParameter;
+void DArgumentOption::SetType(DArgumentOptionType _type) {
+    type = _type;
 }
 
 int DArgumentOption::WasSet() const {
@@ -253,7 +253,7 @@ std::string DArgumentParser::generatePositionalArgsSection() {
 void DArgumentParser::calculateSizeOfOptionsString(std::vector<int> &sizes) {
     int index = 0;
     for (auto arg: argumentOptions) {
-        sizes[index] = (int) ((2 * arg->shortCommands.size()) + arg->shortCommands.size() + arg->longCommands.size() + (arg->takesParameter * 8));//strlen("<value> ") == 8
+        sizes[index] = (int) ((2 * arg->shortCommands.size()) + arg->shortCommands.size() + arg->longCommands.size() + ((arg->type == DArgumentOptionType::InputOption) * 8));//strlen("<value> ") == 8
         auto iterator = arg->longCommands.begin(), end = arg->longCommands.end();
         while (iterator != end) {
             sizes[index] += (int) (2 + (*iterator).size());
@@ -282,7 +282,7 @@ std::vector<std::string> DArgumentParser::generateOptionStrings(std::vector<int>
             tempStr += str;
             tempStr += ' ';
         }
-        if (arg->takesParameter)
+        if (arg->type == DArgumentOptionType::InputOption)
             tempStr += valueString;
         ostringstream << tempStr;
         if (!arg->description.empty())
@@ -369,11 +369,11 @@ DParseResult DArgumentParser::parseLongCommand(const std::string &argument, int 
         if (iterator == arg->longCommands.end())
             continue;
         commandFound = true;
-        if (!arg->takesParameter && posOfEqualSign != std::string::npos) {
+        if (arg->type != DArgumentOptionType::InputOption && posOfEqualSign != std::string::npos) {
             generateErrorText(DParseResult::ValuePassedToOptionThatDoesNotTakeValue, command);
             return DParseResult::ValuePassedToOptionThatDoesNotTakeValue;
         }
-        if (arg->takesParameter) {
+        if (arg->type == DArgumentOptionType::InputOption) {
             if (posOfEqualSign == std::string::npos) {
                 if (++currentIndex == argumentCount) {
                     generateErrorText(DParseResult::NoValueWasPassedToOption, command);
@@ -405,11 +405,11 @@ DParseResult DArgumentParser::parseShortCommand(const std::string &argument, int
             if (iterator == arg->shortCommands.end())
                 continue;
             commandFound = true;
-            if (arg->takesParameter && argument.size() > 2) {
+            if (arg->type == DArgumentOptionType::InputOption && argument.size() > 2) {
                 generateErrorText(DParseResult::OptionsThatTakesValueNeedsToBeSetSeparately, argument[i]);
                 return DParseResult::OptionsThatTakesValueNeedsToBeSetSeparately;
             }
-            if (arg->takesParameter) {
+            if (arg->type == DArgumentOptionType::InputOption) {
                 if (++currentIndex == argumentCount) {
                     generateErrorText(DParseResult::NoValueWasPassedToOption, argument[i]);
                     return DParseResult::NoValueWasPassedToOption;

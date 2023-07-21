@@ -14,6 +14,13 @@ enum class DParseResult : unsigned char {
     OptionsThatTakesValueNeedsToBeSetSeparately
 };
 
+enum class DArgumentOptionType : unsigned char {
+    NormalOption,
+    InputOption,
+    HelpOption,
+    VersionOption
+};
+
 class DUnique {
 protected:
     int *objCounter;
@@ -35,7 +42,7 @@ class DArgumentOption : public DUnique {
 
     static std::string generateID();
 
-    bool takesParameter;
+    DArgumentOptionType type = DArgumentOptionType::NormalOption;
     int wasSet = 0;
     std::string value;
     std::set<char> shortCommands;
@@ -46,15 +53,15 @@ public:
     const std::string id;
 
     /**
-     * @details instantiate a DArgumentOption with default values (takesParameter = false)
+     * @details instantiate a DArgumentOption with default values (type = DArgumentOptionType::NormalOption)
      */
     explicit DArgumentOption();
 
     DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
 
-    DArgumentOption(bool _takesParameter, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
+    DArgumentOption(DArgumentOptionType _type, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
 
-    DArgumentOption(bool _takesParameter, std::string _description);
+    DArgumentOption(DArgumentOptionType _type, std::string _description);
 
     ~DArgumentOption();
 
@@ -96,9 +103,9 @@ public:
 
     void AddDescription(const std::string &_description);
 
-    [[nodiscard]] bool TakesParameter() const;
+    void SetType(DArgumentOptionType _type);
 
-    void SetTakesParameter(bool _takesParameter);
+    [[nodiscard]] DArgumentOptionType GetType() const;
 
     [[nodiscard]] int WasSet() const;
 

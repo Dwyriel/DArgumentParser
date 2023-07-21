@@ -26,16 +26,16 @@ increaseFrequencyOption.AddLongCommand("--freq");
 //but commands with a minus sign in the middle are accepted
 increaseFrequencyOption.AddLongCommand("smile-freq");
 ```
-Options can also take a parameter, you just need to set the TakesParameter bool to true.<br>
+Options can also take a parameter, you just need to change the type to ```DArgumentOptionType::InputOption```.<br>
 Following the example below, the option will read a parameter if it was passed with a space ```-o outfile.txt``` ```--output outfile.txt``` or by using the equal sign with one of the extensive/long commands ```--output=outfile.txt```.
 ```c++
 DArgumentOption outputFileOption;
-outputFileOption.SetTakesParameter(true);
+outputFileOption.SetType(DArgumentOptionType::InputOption);
 outputFileOption.AddShortCommand('o');
 outputFileOption.AddLongCommand("output");
 outputFileOption.AddDescription("If set, all the smiles will be writen in this file rather than being printed on the console.");
 //or all in one line
-DArgumentOption outputFileOption(true, {'o'}, {"output"}, "If set, all the smiles will be writen in this file rather than being printed on the console.");
+DArgumentOption outputFileOption(DArgumentOptionType::InputOption, {'o'}, {"output"}, "If set, all the smiles will be writen in this file rather than being printed on the console.");
 ```
 After all option objects are created, they should be added to the parser in order for them to be checked when ```Parse()``` is called later on. They can be passed one by one or passed all at the same time using a list initializer. (needs to be passed as a pointer)
 ```c++
@@ -79,10 +79,13 @@ if (parseResult != DParseResult::ParseSuccessful) {
 }
 ```
 Using the generated help and version texts together with DArgumentOption to print them to the console when requested.
+Though not mandatory, changing the type to ```DArgumentOptionType::HelpOption``` or ```DArgumentOptionType::VersionOption``` will create a special section (Help) for those options when ```HelpText()``` is called.
 ```c++
 DArgumentOption helpOption({'h'}, {"help"}, "Prints out the help text.");
 DArgumentOption versionOption({'v'}, {"version"}, "Prints out the version.");
 parser.AddArgumentOption({&helpOption, &versionOption});
+//or
+
 //...
 parser.Parse();
 if (helpOption.WasSet()) {
