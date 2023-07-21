@@ -32,10 +32,11 @@ Following the example below, the option will read a parameter if it was passed w
 DArgumentOption outputFileOption;
 outputFileOption.SetType(DArgumentOptionType::InputOption);
 outputFileOption.AddShortCommand('o');
+outputFileOption.AddLongCommand("out");
 outputFileOption.AddLongCommand("output");
 outputFileOption.AddDescription("If set, all the smiles will be writen in this file rather than being printed on the console.");
 //or all in one line
-DArgumentOption outputFileOption(DArgumentOptionType::InputOption, {'o'}, {"output"}, "If set, all the smiles will be writen in this file rather than being printed on the console.");
+DArgumentOption outputFileOption(DArgumentOptionType::InputOption, {'o'}, {"out", "output"}, "If set, all the smiles will be writen in this file rather than being printed on the console.");
 ```
 After all option objects are created, they should be added to the parser in order for them to be checked when ```Parse()``` is called later on. They can be passed one by one or passed all at the same time using a list initializer. (needs to be passed as a pointer)
 ```c++
@@ -79,15 +80,21 @@ if (parseResult != DParseResult::ParseSuccessful) {
 }
 ```
 Using the generated help and version texts together with DArgumentOption to print them to the console when requested.
-Though not mandatory, changing the type to ```DArgumentOptionType::HelpOption``` or ```DArgumentOptionType::VersionOption``` will create a special section (Help) for those options when ```HelpText()``` is called.
+Though not mandatory, changing the type to ```DArgumentOptionType::HelpOption``` or ```DArgumentOptionType::VersionOption``` will create a special section ("Getting help:") for those options when ```HelpText()``` is called.
 ```c++
-DArgumentOption helpOption({'h'}, {"help"}, "Prints out the help text.");
+DArgumentOption helpOption({'h'}, {"help"}, "Prints out this message.");
 DArgumentOption versionOption({'v'}, {"version"}, "Prints out the version.");
 parser.AddArgumentOption({&helpOption, &versionOption});
 //or
-
+DArgumentOption helpOption(DArgumentOptionType::HelpOption, {'h'}, {"help"}, "Prints out this message.");
+DArgumentOption versionOption(DArgumentOptionType::VersionOption, {'v'}, {"version"}, "Prints out the version.");
+parser.AddArgumentOption({&helpOption, &versionOption});
 //...
 parser.Parse();
+if(helpOption.WasSet() && versionOption.WasSet()){
+    std::cout << parser.VersionText() << parser.HelpText();
+    exit(EXIT_SUCCESS);
+}
 if (helpOption.WasSet()) {
     std::cout << parser.HelpText();
     exit(EXIT_SUCCESS);

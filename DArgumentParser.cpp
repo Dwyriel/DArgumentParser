@@ -5,7 +5,9 @@
 #include <iomanip>
 #include <algorithm>
 
-const char *valueString = "<value> "; //size of 8
+const char *argOptionTakesValueString = "<value> "; //size of 8
+const char *helpAndVersionOptionsSectionOpeningString = "\nGetting help:\n";
+const char *normalOptionSectionOpeningString = "\nOptions:\n";
 const char minusSign = '-', equalSign = '=';
 const int shortCommandStartPos = 1, longCommandStartPos = 2;
 
@@ -129,6 +131,71 @@ std::string DArgumentParser::getExecutableName(char *execCall) {
     return execName.substr(execName.find_last_of('/') + 1);
 }
 
+std::vector<int> DArgumentParser::calculateSizeOfOptionStrings(const std::vector<DArgumentOption *> &args) {
+    std::vector<int> sizes(args.size());
+    int index = 0;
+    for (auto arg: args) {
+        sizes[index] = (int) ((2 * arg->shortCommands.size()) + arg->shortCommands.size() + arg->longCommands.size() + ((arg->type == DArgumentOptionType::InputOption) * 8));//strlen("<value> ") == 8
+        auto iterator = arg->longCommands.begin(), end = arg->longCommands.end();
+        while (iterator != end) {
+            sizes[index] += (int) (2 + (*iterator).size());
+            ++iterator;
+        }
+        index++;
+    }
+    return std::move(sizes);
+}
+
+std::vector<std::string> DArgumentParser::generateOptionStrings(const std::vector<DArgumentOption *> &args, std::vector<int> &sizes, int columnSize) {
+    std::vector<std::string> optionStrings;
+    optionStrings.reserve(args.size());
+    int index = 0;
+    for (auto arg: args) {
+        std::ostringstream ostringstream;
+        ostringstream << "   " << std::setw(columnSize) << std::left;
+        std::string tempStr;
+        tempStr.reserve(sizes[index]);
+        for (auto c: arg->shortCommands) {
+            tempStr += minusSign;
+            tempStr += c;
+            tempStr += ' ';
+        }
+        for (const auto &str: arg->longCommands) {
+            tempStr += "--";
+            tempStr += str;
+            tempStr += ' ';
+        }
+        if (arg->type == DArgumentOptionType::InputOption)
+            tempStr += argOptionTakesValueString;
+        ostringstream << tempStr;
+        if (!arg->description.empty())
+            ostringstream << "  " << arg->description;
+        ostringstream << '\n';
+        optionStrings.emplace_back(std::move(ostringstream.str()));
+        index++;
+    }
+    return std::move(optionStrings);
+}
+
+std::string DArgumentParser::generateOptionsSubSection(const std::vector<DArgumentOption *> &args, const char *openingString) {
+    std::string sectionString = openingString;
+    std::vector<int> otherSizes = calculateSizeOfOptionStrings(args);
+    int optionCommandsColSize = 0;
+    for (int i = 0; i < args.size(); i++) {
+        if (otherSizes[i] > optionCommandsColSize)
+            optionCommandsColSize = otherSizes[i];
+    }
+    auto orderedOptionStrings = generateOptionStrings(args, otherSizes, optionCommandsColSize);
+    std::sort(orderedOptionStrings.begin(), orderedOptionStrings.end());
+    size_t totalSize = sectionString.size();
+    for (const auto &str: orderedOptionStrings)
+        totalSize += str.size();
+    sectionString.reserve(totalSize);
+    for (const auto &str: orderedOptionStrings)
+        sectionString += str;
+    return std::move(sectionString);
+}
+
 bool DArgumentParser::isLongCommand(const std::string &argument) {
     return (argument.size() > longCommandStartPos && argument[0] == minusSign && argument[1] == minusSign);
 }
@@ -250,68 +317,19 @@ std::string DArgumentParser::generatePositionalArgsSection() {
     return std::move(argSection);
 }
 
-void DArgumentParser::calculateSizeOfOptionsString(std::vector<int> &sizes) {
-    int index = 0;
-    for (auto arg: argumentOptions) {
-        sizes[index] = (int) ((2 * arg->shortCommands.size()) + arg->shortCommands.size() + arg->longCommands.size() + ((arg->type == DArgumentOptionType::InputOption) * 8));//strlen("<value> ") == 8
-        auto iterator = arg->longCommands.begin(), end = arg->longCommands.end();
-        while (iterator != end) {
-            sizes[index] += (int) (2 + (*iterator).size());
-            ++iterator;
-        }
-        index++;
-    }
-}
-
-std::vector<std::string> DArgumentParser::generateOptionStrings(std::vector<int> &sizes, int columnSize) {
-    std::vector<std::string> optionStrings;
-    optionStrings.reserve(argumentOptions.size());
-    int index = 0;
-    for (auto arg: argumentOptions) {
-        std::ostringstream ostringstream;
-        ostringstream << "   " << std::setw(columnSize) << std::left;
-        std::string tempStr;
-        tempStr.reserve(sizes[index]);
-        for (auto c: arg->shortCommands) {
-            tempStr += minusSign;
-            tempStr += c;
-            tempStr += ' ';
-        }
-        for (const auto &str: arg->longCommands) {
-            tempStr += "--";
-            tempStr += str;
-            tempStr += ' ';
-        }
-        if (arg->type == DArgumentOptionType::InputOption)
-            tempStr += valueString;
-        ostringstream << tempStr;
-        if (!arg->description.empty())
-            ostringstream << "  " << arg->description;
-        ostringstream << '\n';
-        optionStrings.emplace_back(std::move(ostringstream.str()));
-        index++;
-    }
-    return std::move(optionStrings);
-}
-
-std::string DArgumentParser::generateArgumentOptionsSection() {
-    std::string argSection = "\nOptions:\n";
-    std::vector<int> sizes(argumentOptions.size());
-    calculateSizeOfOptionsString(sizes);
-    int optionCommandsColSize = 0;
-    for (int i = 0; i < argumentOptions.size(); i++) {
-        if (sizes[i] > optionCommandsColSize)
-            optionCommandsColSize = sizes[i];
-    }
-    auto orderedOptionStrings = generateOptionStrings(sizes, optionCommandsColSize);
-    std::sort(orderedOptionStrings.begin(), orderedOptionStrings.end());
-    size_t totalSize = argSection.size();
-    for (const auto &str: orderedOptionStrings)
-        totalSize += str.size();
-    argSection.reserve(totalSize);
-    for (const auto &str: orderedOptionStrings)
-        argSection += str;
-    return std::move(argSection);
+std::string DArgumentParser::generateOptionsSection() {
+    std::vector<DArgumentOption *> helpAndVersionOptions, normalOptions;
+    for (auto arg: argumentOptions)
+        if (arg->type == DArgumentOptionType::HelpOption || arg->type == DArgumentOptionType::VersionOption)
+            helpAndVersionOptions.push_back(arg);
+        else
+            normalOptions.push_back(arg);
+    std::string sectionString;
+    if (!helpAndVersionOptions.empty())
+        sectionString += generateOptionsSubSection(helpAndVersionOptions, helpAndVersionOptionsSectionOpeningString);
+    if (!normalOptions.empty())
+        sectionString += generateOptionsSubSection(normalOptions, normalOptionSectionOpeningString);
+    return std::move(sectionString);
 }
 
 void DArgumentParser::generateErrorText(DParseResult error, const std::string &command) {
@@ -384,8 +402,13 @@ DParseResult DArgumentParser::parseLongCommand(const std::string &argument, int 
                     generateErrorText(DParseResult::NoValueWasPassedToOption, command);
                     return DParseResult::NoValueWasPassedToOption;
                 }
-            } else
+            } else {
+                if (argument[posOfEqualSign] == argument[argument.size() - 1]) {
+                    generateErrorText(DParseResult::NoValueWasPassedToOption, command);
+                    return DParseResult::NoValueWasPassedToOption;
+                }
                 arg->value = argument.substr(posOfEqualSign + 1);
+            }
         }
         arg->wasSet++;
         break;
@@ -498,24 +521,25 @@ const std::vector<std::string> &DArgumentParser::GetPositionalArguments() const 
 
 std::string DArgumentParser::VersionText() {
     std::string versionText;
-    versionText.reserve(appName.size() + appVersion.size() + 1);
+    versionText.reserve(appName.size() + appVersion.size() + 2);
     versionText.append(appName);
     versionText += ' ';
     versionText.append(appVersion);
+    versionText += '\n';
     return versionText;
 }
 
 std::string DArgumentParser::HelpText() {
     std::string helpText;
-    std::string usage = generateUsageSection();
-    std::string description = generateDescriptionSection();
-    std::string posArgsHelpText = generatePositionalArgsSection();
-    std::string optionsArgsHelpText = argumentOptions.empty() ? std::string() : generateArgumentOptionsSection();
-    helpText.reserve(usage.size() + description.size() + posArgsHelpText.size() + optionsArgsHelpText.size());
-    helpText += usage;
-    helpText += description;
-    helpText += posArgsHelpText;
-    helpText += optionsArgsHelpText;
+    std::string usageSection = generateUsageSection();
+    std::string descriptionSection = generateDescriptionSection();
+    std::string posArgsSection = generatePositionalArgsSection();
+    std::string optionsSection = generateOptionsSection();
+    helpText.reserve(usageSection.size() + descriptionSection.size() + posArgsSection.size() + optionsSection.size());
+    helpText += usageSection;
+    helpText += descriptionSection;
+    helpText += posArgsSection;
+    helpText += optionsSection;
     return helpText;
 }
 

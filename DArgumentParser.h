@@ -133,6 +133,12 @@ class DArgumentParser {
 
     static std::string getExecutableName(char *execCall);
 
+    static std::vector<int> calculateSizeOfOptionStrings(const std::vector<DArgumentOption *> &args);
+
+    static std::vector<std::string> generateOptionStrings(const std::vector<DArgumentOption *> &args, std::vector<int> &sizes, int columnSize);
+
+    static std::string generateOptionsSubSection(const std::vector<DArgumentOption *> &args, const char *openingString);
+
     static bool isLongCommand(const std::string &argument);
 
     static bool isShortCommand(const std::string &argument);
@@ -149,11 +155,7 @@ class DArgumentParser {
 
     std::string generatePositionalArgsSection();
 
-    void calculateSizeOfOptionsString(std::vector<int> &sizes);
-
-    std::vector<std::string> generateOptionStrings(std::vector<int> &sizes, int columnSize);
-
-    std::string generateArgumentOptionsSection();
+    std::string generateOptionsSection();
 
     void generateErrorText(DParseResult error, const std::string &command);
 
