@@ -1,12 +1,12 @@
-#ifndef KTARGUMENTPARSER_LIBRARY_H
-#define KTARGUMENTPARSER_LIBRARY_H
+#ifndef DARGUMENTPARSER_LIBRARY_H
+#define DARGUMENTPARSER_LIBRARY_H
 
 #include <string>
 #include <vector>
 #include <set>
 #include <unordered_set>
 
-enum class DParseResult : char {
+enum class DParseResult : unsigned char {
     ParseSuccessful,
     InvalidOption,
     ValuePassedToOptionThatDoesNotTakeValue,
@@ -254,4 +254,4 @@ public:
     DParseResult Parse();
 };
 
-#endif //KTARGUMENTPARSER_LIBRARY_H
+#endif //DARGUMENTPARSER_LIBRARY_H
