@@ -21,26 +21,8 @@ enum class DArgumentOptionType : unsigned char {
     VersionOption
 };
 
-class DUnique {
-protected:
-    int *objCounter;
-
-    void deleteObjectCounter() const;
-
-public:
-    DUnique();
-
-    DUnique(const DUnique &dUnique);
-
-    DUnique(DUnique &&dUnique) noexcept;
-};
-
-class DArgumentOption : public DUnique {
+class DArgumentOption {
     friend class DArgumentParser;
-
-    static std::unordered_set<std::string> ids;
-
-    static std::string generateID();
 
     DArgumentOptionType type = DArgumentOptionType::NormalOption;
     int wasSet = 0;
@@ -50,7 +32,6 @@ class DArgumentOption : public DUnique {
     std::string description;
 
 public:
-    const std::string id;
 
     /**
      * @details instantiate a DArgumentOption with default values (type = DArgumentOptionType::NormalOption)
@@ -62,8 +43,6 @@ public:
     DArgumentOption(DArgumentOptionType _type, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description = std::string());
 
     DArgumentOption(DArgumentOptionType _type, std::string _description);
-
-    ~DArgumentOption();
 
     /**
      * Adds the passed character to the command list for this option, unless it was already included.
@@ -110,13 +89,6 @@ public:
     [[nodiscard]] int WasSet() const;
 
     [[nodiscard]] const std::string &GetValue() const;
-};
-
-template<>
-struct std::hash<DArgumentOption> {
-    std::size_t operator()(DArgumentOption const &dArgumentOption) const noexcept {
-        return std::hash<std::string>{}(dArgumentOption.id);
-    }
 };
 
 class DArgumentParser {

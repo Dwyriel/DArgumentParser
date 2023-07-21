@@ -1,6 +1,5 @@
 #include "DArgumentParser.h"
 
-#include <random>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -11,54 +10,14 @@ const char *normalOptionSectionOpeningString = "\nOptions:\n";
 const char minusSign = '-', equalSign = '=';
 const int shortCommandStartPos = 1, longCommandStartPos = 2;
 
-/* ------ DUnique ------ */
-DUnique::DUnique() : objCounter(new int(1)) {}
-
-DUnique::DUnique(const DUnique &dUnique) {
-    objCounter = dUnique.objCounter;
-    (*objCounter)++;
-}
-
-DUnique::DUnique(DUnique &&dUnique) noexcept {
-    objCounter = dUnique.objCounter;
-}
-
-void DUnique::deleteObjectCounter() const {
-    delete objCounter;
-}
-
 /* ------ DArgumentOption ------ */
-std::unordered_set<std::string> DArgumentOption::ids;
+DArgumentOption::DArgumentOption() : type(DArgumentOptionType::NormalOption) {}
 
-std::string DArgumentOption::generateID() {
-    const int strSize = 32;
-    const char digits[] = "0123456789ABCDEF";
-    std::random_device device;
-    std::mt19937 rng(device());
-    std::uniform_int_distribution<char> uniformIntDistribution(0, sizeof(digits) - 2);
-    std::string id(strSize, '0');
-    for (int i = 0; i < strSize; i++)
-        id[i] = digits[uniformIntDistribution(rng)];
-    if (DArgumentOption::ids.find(id) != DArgumentOption::ids.end())
-        id = generateID();
-    DArgumentOption::ids.insert(id);
-    return id;
-}
+DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : type(DArgumentOptionType::NormalOption), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption() : id(generateID()), type(DArgumentOptionType::NormalOption) {}
+DArgumentOption::DArgumentOption(DArgumentOptionType _type, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : type(_type), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
 
-DArgumentOption::DArgumentOption(std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), type(DArgumentOptionType::NormalOption), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
-
-DArgumentOption::DArgumentOption(DArgumentOptionType _type, std::set<char> &&_shortCommands, std::set<std::string> &&_longCommands, std::string _description) : id(generateID()), type(_type), shortCommands(_shortCommands), longCommands(_longCommands), description(std::move(_description)) {}
-
-DArgumentOption::DArgumentOption(DArgumentOptionType _type, std::string _description) : id(generateID()), type(_type), description(std::move(_description)) {}
-
-DArgumentOption::~DArgumentOption() {
-    if (--(*objCounter) > 0)
-        return;
-    DArgumentOption::ids.erase(id);
-    deleteObjectCounter();
-}
+DArgumentOption::DArgumentOption(DArgumentOptionType _type, std::string _description) : type(_type), description(std::move(_description)) {}
 
 bool DArgumentOption::AddShortCommand(char shortCommand) {
     if (shortCommand < 33 || shortCommand == minusSign || shortCommand == 127)
