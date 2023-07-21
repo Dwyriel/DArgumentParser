@@ -135,9 +135,17 @@ std::vector<int> DArgumentParser::calculateSizeOfOptionStrings(const std::vector
     std::vector<int> sizes(args.size());
     int index = 0;
     for (auto arg: args) {
+        /** formula explanation:
+         * 2 * arg->shortCommands.size() -> adding the minus sign to a characters always leads to 2 characters, so we just need to multiply the amount of chars by 2
+         * arg->shortCommands.size() + arg->longCommands.size() -> the amount of spaces needed between commands, not reducing by 1 means we'll have one extra space total, but we can account for that when building the string and avoid branches.
+         * (arg->type == DArgumentOptionType::InputOption) * 8) -> if arg.type takes a value, we'll print "<value> " (8 characters) after it, because false/true resolves to 0/1, we can safely multiply by this comparison to avoid branching.
+         */
         sizes[index] = (int) ((2 * arg->shortCommands.size()) + arg->shortCommands.size() + arg->longCommands.size() + ((arg->type == DArgumentOptionType::InputOption) * 8));//strlen("<value> ") == 8
         auto iterator = arg->longCommands.begin(), end = arg->longCommands.end();
         while (iterator != end) {
+            /** formula explanation:
+             * 2 + (*iterator).size() -> size of string plus two minus signs characters
+             */
             sizes[index] += (int) (2 + (*iterator).size());
             ++iterator;
         }
@@ -285,6 +293,9 @@ std::string DArgumentParser::generateDescriptionSection() {
 void DArgumentParser::calculateSizeOfArgumentsString(std::vector<int> &sizes) {
     int index = 0;
     for (auto arg: positionalArgs)
+        /** formula explanation:
+         * std::get<0>(arg).size() + 2 -> size of string plus size of 2 characters
+         */
         sizes[index++] = (int) (std::get<2>(arg).empty() ? (std::get<0>(arg).size() + 2) : std::get<2>(arg).size());
 }
 
