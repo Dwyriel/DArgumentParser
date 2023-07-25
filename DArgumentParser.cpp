@@ -259,6 +259,8 @@ void DArgumentParser::calculateSizeOfArgumentsString(std::vector<int> &sizes) {
 }
 
 std::string DArgumentParser::generatePositionalArgsSection() {
+    if (positionalArgs.empty())
+        return {};
     std::string argSection = "\nArguments:\n";
     std::vector<int> sizes(positionalArgs.size());
     calculateSizeOfArgumentsString(sizes);

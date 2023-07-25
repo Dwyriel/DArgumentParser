@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(DArgumentParser VERSION 0.3.1 LANGUAGES CXX)
+project(DArgumentParser VERSION 0.3.2 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
