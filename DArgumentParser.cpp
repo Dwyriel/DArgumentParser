@@ -110,10 +110,10 @@ std::vector<int> DArgumentParser::calculateSizeOfOptionStrings(const std::vector
         }
         index++;
     }
-    return std::move(sizes);
+    return sizes;
 }
 
-std::vector<std::string> DArgumentParser::generateOptionStrings(const std::vector<DArgumentOption *> &args, std::vector<int> &sizes, int columnSize) {
+std::vector<std::string> DArgumentParser::generateOptionStrings(const std::vector<DArgumentOption *> &args, const std::vector<int> &sizes, int columnSize) {
     std::vector<std::string> optionStrings;
     optionStrings.reserve(args.size());
     int index = 0;
@@ -141,7 +141,7 @@ std::vector<std::string> DArgumentParser::generateOptionStrings(const std::vecto
         optionStrings.emplace_back(std::move(ostringstream.str()));
         index++;
     }
-    return std::move(optionStrings);
+    return optionStrings;
 }
 
 std::string DArgumentParser::generateOptionsSubSection(const std::vector<DArgumentOption *> &args, const char *openingString) {
@@ -160,7 +160,7 @@ std::string DArgumentParser::generateOptionsSubSection(const std::vector<DArgume
     sectionString.reserve(totalSize);
     for (const auto &str: orderedOptionStrings)
         sectionString += str;
-    return std::move(sectionString);
+    return sectionString;
 }
 
 bool DArgumentParser::isLongCommand(const std::string &argument) {
@@ -284,7 +284,7 @@ std::string DArgumentParser::generatePositionalArgsSection() {
         ostringstream << "   " << std::get<1>(arg) << '\n';
         argSection += ostringstream.str();
     }
-    return std::move(argSection);
+    return argSection;
 }
 
 std::string DArgumentParser::generateOptionsSection() {
@@ -299,7 +299,7 @@ std::string DArgumentParser::generateOptionsSection() {
         sectionString += generateOptionsSubSection(helpAndVersionOptions, helpAndVersionOptionsSectionOpeningString);
     if (!normalOptions.empty())
         sectionString += generateOptionsSubSection(normalOptions, normalOptionSectionOpeningString);
-    return std::move(sectionString);
+    return sectionString;
 }
 
 void DArgumentParser::generateErrorText(DParseResult error, const std::string &command) {
@@ -521,7 +521,6 @@ DParseResult DArgumentParser::Parse() {
     resetParsedValues();
     if (argumentCount < 2)
         return DParseResult::ParseSuccessful;
-    std::vector<std::string> arguments;
     DParseResult parseResult;
     for (int index = 1; index < argumentCount; index++) {
         std::string currArg(argumentValues[index]);
@@ -539,7 +538,5 @@ DParseResult DArgumentParser::Parse() {
         }
         positionalArgsValues.push_back(currArg);
     }
-    //auto optionsThatTakeValue = getOptionsThatTakeValue();
-
     return DParseResult::ParseSuccessful;
 }

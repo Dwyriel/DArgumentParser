@@ -107,7 +107,7 @@ class DArgumentParser {
 
     static std::vector<int> calculateSizeOfOptionStrings(const std::vector<DArgumentOption *> &args);
 
-    static std::vector<std::string> generateOptionStrings(const std::vector<DArgumentOption *> &args, std::vector<int> &sizes, int columnSize);
+    static std::vector<std::string> generateOptionStrings(const std::vector<DArgumentOption *> &args, const std::vector<int> &sizes, int columnSize);
 
     static std::string generateOptionsSubSection(const std::vector<DArgumentOption *> &args, const char *openingString);
 
